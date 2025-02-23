@@ -1,6 +1,6 @@
-import React from 'react';
-import Layout from '@/components/layout/Layout';
-import CampaignMultiStep from '@/container/create-campaign/CampaignMultiStep';
+import React from 'react'
+import Layout from '@/components/layout/Layout'
+import CampaignMultiStep from '@/container/create-campaign/CampaignMultiStep'
 const CreateCampaign = () => {
   return (
     <Layout>
@@ -9,4 +9,4 @@ const CreateCampaign = () => {
   );
 };
 
-export default CreateCampaign;
+export default CreateCampaign

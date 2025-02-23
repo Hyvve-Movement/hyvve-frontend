@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { TypeSelector } from './step-components/TypeSelector';
-import { useCampaign } from '@/context/CampaignContext';
-import { HiOutlineDocument, HiOutlinePhotograph } from 'react-icons/hi';
 
 interface PlanType {
   name: string;
@@ -10,28 +8,12 @@ interface PlanType {
   isPremium?: boolean;
 }
 
-const campaignTypes: PlanType[] = [
-  {
-    name: 'Text',
-    icon: <HiOutlineDocument className="w-6 h-6 text-white" />,
-    description: 'Collect text-based data from your community',
-    isPremium: false,
-  },
-  {
-    name: 'Image',
-    icon: <HiOutlinePhotograph className="w-6 h-6 text-white" />,
-    description: 'Collect image-based data from your community',
-    isPremium: true,
-  },
-];
-
 const CampaignType = () => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isPremiumEnabled, setIsPremiumEnabled] = useState(true);
-  const { updateCampaignType, errors, campaignData } = useCampaign();
 
   const handleTypeChange = (type: PlanType) => {
-    updateCampaignType(type);
+    console.log('Selected type:', type);
   };
 
   // Test controls for debugging
@@ -48,11 +30,7 @@ const CampaignType = () => {
           Select the type of campaign you want to create
         </p>
 
-        {errors.type && (
-          <p className="text-red-500 text-sm mt-2">{errors.type}</p>
-        )}
-
-        {/* Uncomment for testing premium features */}
+        
         {/* <div className="flex gap-4 mb-4">
           <button
             onClick={toggleDisabled}
@@ -70,8 +48,6 @@ const CampaignType = () => {
 
         <div className="flex justify-center gap-16 mt-9 ml-16">
           <TypeSelector
-            types={campaignTypes}
-            selectedType={campaignData.type}
             disabled={isDisabled}
             premiumEnabled={isPremiumEnabled}
             onTypeChange={handleTypeChange}

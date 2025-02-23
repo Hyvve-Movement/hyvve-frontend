@@ -11,6 +11,7 @@ import {
 } from '@aptos-labs/wallet-adapter-react';
 import { toast } from 'react-toastify';
 import { ChevronDown, Copy, LogOut, User } from 'lucide-react';
+import GradientBorderButton from '@/components/button/GradientBorderButton';
 
 const APTOS_CONNECT_ACCOUNT_URL = 'https://aptosconnect.com/account';
 
@@ -24,7 +25,7 @@ export function WalletSelector() {
     if (connected && account) {
       setIsConnecting(false);
       setIsDialogOpen(false);
-      //   toast.success('Wallet connected successfully');
+    //   toast.success('Wallet connected successfully');
     } else if (connected && !account) {
       setIsConnecting(true);
     } else {
@@ -56,28 +57,14 @@ export function WalletSelector() {
 
   return (
     <>
-      <div className="relative">
+      <div>
         {connected && account ? (
-          <button
+          <GradientBorderButton
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#f5f5fa08] border border-[#f5f5fa14] 
-            hover:bg-[#f5f5fa14] transition-all duration-200"
+            // className="px-4 py-2 bg-blue-500 text-white rounded-md"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-[#f5f5faf4] text-sm">
-                {account.ansName ||
-                  truncateAddress(account.address) ||
-                  'Unknown'}
-              </span>
-                  
-              <span onClick={handleDisconnect}>disconnect</span>
-            </div>
-            <ChevronDown
-              className={`w-4 h-4 text-[#f5f5fa7a] transition-transform duration-200 
-              ${isDropdownOpen ? 'rotate-180' : ''}`}
-            />
-          </button>
+            {account.ansName || truncateAddress(account.address) || 'Unknown'}
+          </GradientBorderButton>
         ) : (
           <button
             onClick={() => setIsDialogOpen(true)}
@@ -87,76 +74,43 @@ export function WalletSelector() {
             {isConnecting ? 'Connecting...' : 'Connect Wallet'}
           </button>
         )}
-
-        {/* Dropdown Menu */}
-        <div
-          className={`absolute right-0 top-full mt-2 w-64 overflow-hidden transition-all duration-200 origin-top highest-z-index
-          ${
-            isDropdownOpen
-              ? 'opacity-100 scale-100'
-              : 'opacity-0 scale-95 pointer-events-none'
-          }`}
-        >
-          <div className="bg-[#1a1a1a] rounded-xl border border-[#f5f5fa14] shadow-xl overflow-hidden">
-            {/* Account Info Section */}
-            <div className="p-4 border-b border-[#f5f5fa14] bg-[#f5f5fa08]">
-              <p className="text-[#f5f5fa7a] text-xs">Connected Wallet</p>
-              <p className="text-[#f5f5faf4] font-medium mt-1">
-                {account?.ansName || truncateAddress(account?.address)}
-              </p>
-            </div>
-
-            {/* Actions Section */}
-            <div className="p-2">
-              {/* <button
+      </div>
+      {isDropdownOpen && (
+        <Portal>
+          <div
+            className="fixed inset-0 z-50"
+            onClick={() => setIsDropdownOpen(false)}
+          >
+            <div
+              className="absolute right-[180px] top-[16px] w-48 bg-white rounded-md shadow-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
                 onClick={copyAddress}
-                className="flex items-center gap-3 w-full p-3 text-left text-sm text-[#f5f5faf4] 
-                rounded-lg hover:bg-[#f5f5fa14] transition-all duration-200 group"
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
-                <div
-                  className="w-8 h-8 rounded-lg bg-[#f5f5fa08] flex items-center justify-center
-                group-hover:bg-[#f5f5fa14] transition-all duration-200"
-                >
-                  <Copy className="w-4 h-4 text-[#a855f7]" />
-                </div>
-                Copy Address
-              </button> */}
-
+                <Copy className="inline-block h-4 w-4 mr-2" /> Copy address
+              </button>
               {wallet && isAptosConnectWallet(wallet) && (
                 <a
                   href={APTOS_CONNECT_ACCOUNT_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 w-full p-3 text-left text-sm text-[#f5f5faf4] 
-                  rounded-lg hover:bg-[#f5f5fa14] transition-all duration-200 group"
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  <div
-                    className="w-8 h-8 rounded-lg bg-[#f5f5fa08] flex items-center justify-center
-                  group-hover:bg-[#f5f5fa14] transition-all duration-200"
-                  >
-                    <User className="w-4 h-4 text-[#a855f7]" />
-                  </div>
-                  Account Settings
+                  <User className="inline-block h-4 w-4 mr-2" /> Account
                 </a>
               )}
-
               <button
                 onClick={handleDisconnect}
-                className="flex items-center gap-3 w-full p-3 text-left text-sm text-red-400
-                rounded-lg hover:bg-[#f5f5fa14] transition-all duration-200 group"
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
-                <div
-                  className="w-8 h-8 rounded-lg bg-[#f5f5fa08] flex items-center justify-center
-                group-hover:bg-[#f5f5fa14] transition-all duration-200"
-                >
-                  <LogOut className="w-4 h-4" />
-                </div>
-                Disconnect
+                <LogOut className="inline-block h-4 w-4 mr-2" /> Disconnect
               </button>
             </div>
           </div>
-        </div>
-      </div>
+        </Portal>
+      )}
       {isDialogOpen && (
         <Portal>
           <ConnectWalletDialog close={closeDialog} />
@@ -167,28 +121,14 @@ export function WalletSelector() {
 }
 
 function Portal({ children }) {
-  const [mounted, setMounted] = useState(false);
-  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [container] = useState(() => document.createElement('div'));
 
   useEffect(() => {
-    setMounted(true);
-    const div = document.createElement('div');
-    div.style.position = 'fixed';
-    div.style.zIndex = '999999';
-    div.style.top = '0';
-    div.style.left = '0';
-    div.style.width = '100%';
-    div.style.height = '100%';
-    div.style.pointerEvents = 'none';
-    setContainer(div);
-
-    document.body.appendChild(div);
+    document.body.appendChild(container);
     return () => {
-      document.body.removeChild(div);
+      document.body.removeChild(container);
     };
-  }, []);
-
-  if (!mounted || !container) return null;
+  }, [container]);
 
   return ReactDOM.createPortal(children, container);
 }
@@ -217,34 +157,26 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
   };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center"
-      style={{
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        width: '100vw',
-        height: '100vh',
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        backdropFilter: 'blur(15px)',
-        pointerEvents: 'auto',
-      }}
-    >
-      <div
-        className="bg-[#1a1a1a] rounded-2xl border border-[#f5f5fa14] p-6 w-full max-w-md m-4
-        max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-[#f5f5fa14] scrollbar-track-transparent
-        animate-fadeIn"
-      >
-        <div className="text-center mb-6">
-          <h2 className="text-xl font-bold text-[#f5f5faf4]">Connect Wallet</h2>
-          <p className="text-[#f5f5fa7a] text-sm mt-1">
-            Choose your preferred wallet
-          </p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-screen overflow-auto">
+        <div className="text-center mb-4">
+          <h2 className="text-xl font-bold">Connect a Wallet</h2>
         </div>
-
-        <div className="space-y-6">
-          <div className="space-y-3">
-            <h3 className="text-[#f5f5faf4] font-medium">Available Wallets</h3>
+        <div className="space-y-4">
+          {hasAptosConnectWallets && (
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Aptos Connect Wallets</h3>
+              {aptosConnectWallets.map((wallet) => (
+                <AptosConnectWalletRow
+                  key={wallet.name}
+                  wallet={wallet}
+                  onConnect={() => handleConnect(wallet)}
+                />
+              ))}
+            </div>
+          )}
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Available Wallets</h3>
             {availableWallets.map((wallet) => (
               <WalletRow
                 key={wallet.name}
@@ -253,39 +185,31 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
               />
             ))}
           </div>
-
           {!!installableWallets.length && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               <button
                 onClick={() => setShowMore(!showMore)}
-                className="flex items-center gap-2 text-[#a855f7] text-sm font-medium"
+                className="text-blue-500 flex items-center"
               >
-                {showMore ? 'Show Less' : 'More Options'}
+                More wallets{' '}
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform ${
-                    showMore ? 'rotate-180' : ''
-                  }`}
+                  className={`ml-1 transform ${showMore ? 'rotate-180' : ''}`}
                 />
               </button>
-              {showMore && (
-                <div className="space-y-2">
-                  {installableWallets.map((wallet) => (
-                    <WalletRow
-                      key={wallet.name}
-                      wallet={wallet}
-                      onConnect={() => handleConnect(wallet)}
-                    />
-                  ))}
-                </div>
-              )}
+              {showMore &&
+                installableWallets.map((wallet) => (
+                  <WalletRow
+                    key={wallet.name}
+                    wallet={wallet}
+                    onConnect={() => handleConnect(wallet)}
+                  />
+                ))}
             </div>
           )}
         </div>
-
         <button
           onClick={close}
-          className="mt-6 w-full p-3 rounded-xl border border-[#f5f5fa14] text-[#f5f5fa7a] 
-          hover:bg-[#f5f5fa14] transition-colors text-sm font-medium"
+          className="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-md w-full"
         >
           Cancel
         </button>
@@ -301,40 +225,45 @@ interface WalletRowProps {
 
 function WalletRow({ wallet, onConnect }: WalletRowProps) {
   return (
-    <div
-      className="flex items-center justify-between p-3 rounded-xl border border-[#f5f5fa14] 
-    bg-[#f5f5fa08] hover:bg-[#f5f5fa14] transition-all"
-    >
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg bg-white/5 p-2">
-          <img
-            src={wallet.icon}
-            alt={`${wallet.name} icon`}
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <span className="text-[#f5f5faf4] font-medium">{wallet.name}</span>
+    <div className="flex items-center justify-between p-2 border rounded-md">
+      <div className="flex items-center space-x-2">
+        <img
+          src={wallet.icon}
+          alt={`${wallet.name} icon`}
+          className="h-6 w-6"
+        />
+        <span>{wallet.name}</span>
       </div>
       {isInstallRequired(wallet) ? (
         <a
           href={wallet.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-4 py-2 rounded-lg bg-[#f5f5fa14] text-[#f5f5faf4] text-sm font-medium
-          hover:bg-[#f5f5fa1a] transition-colors"
+          className="px-2 py-1 bg-gray-200 text-sm rounded"
         >
           Install
         </a>
       ) : (
         <button
           onClick={onConnect}
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white 
-          text-sm font-medium hover:opacity-90 transition-opacity"
+          className="px-2 py-1 bg-blue-500 text-black text-sm rounded"
         >
           Connect
         </button>
       )}
     </div>
+  );
+}
+
+function AptosConnectWalletRow({ wallet, onConnect }: WalletRowProps) {
+  return (
+    <button
+      onClick={onConnect}
+      className="flex items-center justify-center space-x-2 w-full p-2 border rounded-md hover:bg-gray-100"
+    >
+      <img src={wallet.icon} alt={`${wallet.name} icon`} className="h-5 w-5" />
+      <span>{wallet.name}</span>
+    </button>
   );
 }
 

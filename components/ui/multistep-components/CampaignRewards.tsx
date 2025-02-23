@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { HiCurrencyDollar, HiScale, HiChartBar } from 'react-icons/hi';
-import { useCampaign } from '@/context/CampaignContext';
 
 interface CampaignRewardsData {
   unitPrice: string;
@@ -10,13 +9,20 @@ interface CampaignRewardsData {
 }
 
 const CampaignRewards = () => {
-  const { campaignData, updateCampaignRewards, errors } = useCampaign();
-  const { rewards } = campaignData;
+  const [formData, setFormData] = useState<CampaignRewardsData>({
+    unitPrice: '',
+    totalBudget: '',
+    minDataCount: '',
+    maxDataCount: '',
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      updateCampaignRewards({ [name]: value });
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
@@ -45,24 +51,15 @@ const CampaignRewards = () => {
                 <input
                   type="number"
                   name="totalBudget"
-                  value={rewards.totalBudget}
+                  value={formData.totalBudget}
                   onChange={handleChange}
-                  className={`w-full pl-12 pr-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-                    errors.rewards?.totalBudget
-                      ? 'border-red-500'
-                      : 'border-[#f5f5fa14]'
-                  } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200`}
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200"
                   placeholder="Enter total campaign budget"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span className="text-[#f5f5fa7a]">Ⓜ</span>
                 </div>
               </div>
-              {errors.rewards?.totalBudget && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.rewards.totalBudget}
-                </p>
-              )}
               <p className="text-xs text-[#f5f5fa7a] mt-2">
                 This is the maximum amount you&apos;re willing to spend on this
                 campaign
@@ -97,20 +94,11 @@ const CampaignRewards = () => {
                   <input
                     type="number"
                     name="minDataCount"
-                    value={rewards.minDataCount}
+                    value={formData.minDataCount}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-                      errors.rewards?.minDataCount
-                        ? 'border-red-500'
-                        : 'border-[#f5f5fa14]'
-                    } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200`}
+                    className="w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200"
                     placeholder="Min submissions"
                   />
-                  {errors.rewards?.minDataCount && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.rewards.minDataCount}
-                    </p>
-                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-[#f5f5fa7a]">
@@ -119,20 +107,11 @@ const CampaignRewards = () => {
                   <input
                     type="number"
                     name="maxDataCount"
-                    value={rewards.maxDataCount}
+                    value={formData.maxDataCount}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-                      errors.rewards?.maxDataCount
-                        ? 'border-red-500'
-                        : 'border-[#f5f5fa14]'
-                    } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200`}
+                    className="w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200"
                     placeholder="Max submissions"
                   />
-                  {errors.rewards?.maxDataCount && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.rewards.maxDataCount}
-                    </p>
-                  )}
                 </div>
               </div>
 
@@ -155,24 +134,15 @@ const CampaignRewards = () => {
               <input
                 type="number"
                 name="unitPrice"
-                value={rewards.unitPrice}
+                value={formData.unitPrice}
                 onChange={handleChange}
-                className={`w-full pl-12 pr-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-                  errors.rewards?.unitPrice
-                    ? 'border-red-500'
-                    : 'border-[#f5f5fa14]'
-                } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200`}
+                className="w-full pl-12 pr-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200"
                 placeholder="Enter reward amount per submission"
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <span className="text-[#f5f5fa7a]">Ⓜ</span>
               </div>
             </div>
-            {errors.rewards?.unitPrice && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.rewards.unitPrice}
-              </p>
-            )}
           </div>
         </div>
       </form>

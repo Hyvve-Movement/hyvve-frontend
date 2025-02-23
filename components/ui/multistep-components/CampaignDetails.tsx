@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   HiOutlinePencil,
   HiOutlineDocumentText,
   HiOutlineClipboardCheck,
   HiOutlineCalendar,
 } from 'react-icons/hi';
-import { useCampaign } from '@/context/CampaignContext';
 
 interface CampaignDetailsData {
   title: string;
@@ -16,14 +15,22 @@ interface CampaignDetailsData {
 }
 
 const CampaignDetails = () => {
-  const { campaignData, updateCampaignDetails, errors } = useCampaign();
-  const { details } = campaignData;
+  const [formData, setFormData] = useState<CampaignDetailsData>({
+    title: '',
+    description: '',
+    requirements: '',
+    qualityCriteria: '',
+    expirationDate: '',
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    updateCampaignDetails({ [name]: value });
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
@@ -44,16 +51,11 @@ const CampaignDetails = () => {
             type="text"
             id="title"
             name="title"
-            value={details.title}
+            value={formData.title}
             onChange={handleChange}
-            className={`w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-              errors.details?.title ? 'border-red-500' : 'border-[#f5f5fa14]'
-            } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200`}
+            className="w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200"
             placeholder="Enter a descriptive title for your campaign"
           />
-          {errors.details?.title && (
-            <p className="text-red-500 text-sm mt-1">{errors.details.title}</p>
-          )}
         </div>
 
         {/* Description Textarea */}
@@ -70,21 +72,12 @@ const CampaignDetails = () => {
           <textarea
             id="description"
             name="description"
-            value={details.description}
+            value={formData.description}
             onChange={handleChange}
             rows={4}
-            className={`w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-              errors.details?.description
-                ? 'border-red-500'
-                : 'border-[#f5f5fa14]'
-            } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 resize-none`}
+            className="w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 resize-none"
             placeholder="Provide a detailed description of what you're looking to collect"
           />
-          {errors.details?.description && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.details.description}
-            </p>
-          )}
         </div>
 
         {/* Requirements Textarea */}
@@ -101,21 +94,12 @@ const CampaignDetails = () => {
           <textarea
             id="requirements"
             name="requirements"
-            value={details.requirements}
+            value={formData.requirements}
             onChange={handleChange}
             rows={4}
-            className={`w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-              errors.details?.requirements
-                ? 'border-red-500'
-                : 'border-[#f5f5fa14]'
-            } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 resize-none`}
+            className="w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 resize-none"
             placeholder="List specific requirements for data submission"
           />
-          {errors.details?.requirements && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.details.requirements}
-            </p>
-          )}
         </div>
 
         {/* Quality Criteria Textarea */}
@@ -132,21 +116,12 @@ const CampaignDetails = () => {
           <textarea
             id="qualityCriteria"
             name="qualityCriteria"
-            value={details.qualityCriteria}
+            value={formData.qualityCriteria}
             onChange={handleChange}
             rows={4}
-            className={`w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-              errors.details?.qualityCriteria
-                ? 'border-red-500'
-                : 'border-[#f5f5fa14]'
-            } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 resize-none`}
+            className="w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 resize-none"
             placeholder="Define the quality standards for acceptable submissions"
           />
-          {errors.details?.qualityCriteria && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.details.qualityCriteria}
-            </p>
-          )}
         </div>
 
         {/* Expiration Date Input */}
@@ -164,20 +139,11 @@ const CampaignDetails = () => {
             type="date"
             id="expirationDate"
             name="expirationDate"
-            value={details.expirationDate}
+            value={formData.expirationDate}
             onChange={handleChange}
             min={new Date().toISOString().split('T')[0]}
-            className={`w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-              errors.details?.expirationDate
-                ? 'border-red-500'
-                : 'border-[#f5f5fa14]'
-            } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 [color-scheme:dark]`}
+            className="w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 [color-scheme:dark]"
           />
-          {errors.details?.expirationDate && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.details.expirationDate}
-            </p>
-          )}
         </div>
       </form>
     </div>

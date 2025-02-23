@@ -1,10 +1,5 @@
 import React from 'react';
 import Sidebar from './Sidebar';
-import dynamic from 'next/dynamic';
-
-const WalletSelector = dynamic(() => import('@/helpers/WalletSelector'), {
-  ssr: false,
-});
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -26,7 +21,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <button className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-lg text-sm p-2 px-4">
           Activate subscription
         </button>
-        <WalletSelector />
+        <button className="gradient-border text-sm p-2">Connect Wallet</button>
       </div>
       {children}
     </div>

@@ -70,6 +70,8 @@ export function WalletSelector() {
                   truncateAddress(account.address) ||
                   'Unknown'}
               </span>
+                  
+              <span onClick={handleDisconnect}>disconnect</span>
             </div>
             <ChevronDown
               className={`w-4 h-4 text-[#f5f5fa7a] transition-transform duration-200 

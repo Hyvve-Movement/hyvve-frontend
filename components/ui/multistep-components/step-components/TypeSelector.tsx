@@ -13,6 +13,8 @@ interface PlanType {
 }
 
 interface TypeSelectorProps {
+  types: PlanType[];
+  selectedType: PlanType | null;
   disabled?: boolean;
   premiumEnabled?: boolean;
   onTypeChange?: (type: PlanType) => void;
@@ -33,27 +35,26 @@ const plans: PlanType[] = [
 ];
 
 export function TypeSelector({
-  disabled = false,
-  premiumEnabled = true,
+  types,
+  selectedType,
+  disabled = true,
+  premiumEnabled = false,
   onTypeChange,
 }: TypeSelectorProps) {
-  const [selectedType, setSelectedType] = useState<string>(plans[0].name);
-
   const handleTypeClick = (plan: PlanType) => {
     if (disabled || (plan.isPremium && !premiumEnabled)) {
       return;
     }
-    setSelectedType(plan.name);
     onTypeChange?.(plan);
   };
 
   return (
     <div className="w-full max-w-3xl mx-auto">
       <div className={`grid grid-cols-2 gap-4 ${disabled ? 'opacity-60' : ''}`}>
-        {plans.map((plan) => {
+        {types.map((plan) => {
           const isPlanDisabled =
             disabled || (plan.isPremium && !premiumEnabled);
-          const isSelected = selectedType === plan.name;
+          const isSelected = selectedType?.name === plan.name;
 
           return (
             <button
@@ -69,7 +70,7 @@ export function TypeSelector({
                     ? 'cursor-not-allowed border-[#f5f5fa14] bg-[#f5f5fa08]'
                     : isSelected
                     ? 'border-[#a855f7] bg-[#6366f114]'
-                    : 'border-[#f5f5fa14] bg-[#f5f5fa08] hover:bg-[#f5f5fa14]'
+                    : 'border-[#f5f5fa14]  hover:bg-[#f5f5fa14]'
                 }
               `}
             >

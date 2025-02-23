@@ -9,27 +9,25 @@ import {
   HiOutlineCurrencyDollar,
   HiInformationCircle,
 } from 'react-icons/hi';
-
-// Dummy data for demonstration
-const campaignData = {
-  type: 'Text',
-  title: 'Community Feedback Collection',
-  description:
-    'Gathering user feedback on the new platform features and user experience.',
-  requirements:
-    'Detailed feedback with specific examples and use cases. Minimum 100 words per submission.',
-  qualityCriteria:
-    'Must be constructive, specific, and actionable feedback. No generic responses.',
-  expirationDate: '2024-05-01',
-  rewards: {
-    unitPrice: '50',
-    totalBudget: '5000',
-    minDataCount: '50',
-    maxDataCount: '100',
-  },
-};
+import { useCampaign } from '@/context/CampaignContext';
 
 const CampaignReview = () => {
+  const { campaignData } = useCampaign();
+  const { type, details, rewards } = campaignData;
+
+  // Calculate fees using basis points (fixed at 2.5% = 250 basis points)
+  const PLATFORM_FEE_BASIS_POINTS = 250; // 2.5% = 250 basis points
+  const totalBudgetNumber = parseFloat(rewards.totalBudget) || 0;
+  const maxSubmissions = parseInt(rewards.maxDataCount) || 0;
+  const rewardPerSubmission = parseFloat(rewards.unitPrice) || 0;
+
+  // Calculate total rewards
+  const totalRewards = maxSubmissions * rewardPerSubmission;
+
+  // Calculate platform fee: (amount * basis_points) / 10000
+  const platformFee = (totalRewards * PLATFORM_FEE_BASIS_POINTS) / 10000;
+  const platformFeePercentage = (PLATFORM_FEE_BASIS_POINTS / 100).toFixed(1);
+
   return (
     <div className="w-full max-w-3xl mx-auto p-6">
       <div className="space-y-8 ml-24">
@@ -39,7 +37,7 @@ const CampaignReview = () => {
           <div className="relative p-6 bg-[#0f0f17] rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#a855f7]">
-                {campaignData.type === 'Text' ? (
+                {type?.name === 'Text' ? (
                   <HiOutlineDocument className="w-6 h-6 text-white" />
                 ) : (
                   <HiOutlinePhotograph className="w-6 h-6 text-white" />
@@ -47,7 +45,7 @@ const CampaignReview = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-[#f5f5faf4]">
-                  {campaignData.type} Campaign
+                  {type?.name} Campaign
                 </h3>
                 <p className="text-sm text-[#f5f5fa7a]">Data Collection Type</p>
               </div>
@@ -67,35 +65,31 @@ const CampaignReview = () => {
           <div className="space-y-4">
             <div className="flex flex-col gap-1">
               <span className="text-sm text-[#f5f5fa7a]">Title</span>
-              <p className="text-[#f5f5faf4] font-medium">
-                {campaignData.title}
-              </p>
+              <p className="text-[#f5f5faf4] font-medium">{details.title}</p>
             </div>
 
             <div className="flex flex-col gap-1">
               <span className="text-sm text-[#f5f5fa7a]">Description</span>
-              <p className="text-[#f5f5faf4]">{campaignData.description}</p>
+              <p className="text-[#f5f5faf4]">{details.description}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-6">
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-[#f5f5fa7a]">Requirements</span>
-                <p className="text-[#f5f5faf4]">{campaignData.requirements}</p>
+                <p className="text-[#f5f5faf4]">{details.requirements}</p>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-[#f5f5fa7a]">
                   Quality Criteria
                 </span>
-                <p className="text-[#f5f5faf4]">
-                  {campaignData.qualityCriteria}
-                </p>
+                <p className="text-[#f5f5faf4]">{details.qualityCriteria}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 pt-2">
               <HiOutlineCalendar className="w-5 h-5 text-[#a855f7]" />
               <span className="text-[#f5f5faf4]">
-                Expires: {campaignData.expirationDate}
+                Expires: {details.expirationDate}
               </span>
             </div>
           </div>
@@ -118,7 +112,7 @@ const CampaignReview = () => {
                 </span>
                 <div className="flex items-center gap-1">
                   <span className="text-[#f5f5faf4] font-medium text-lg">
-                    {campaignData.rewards.unitPrice}
+                    {rewards.unitPrice}
                   </span>
                   <span className="text-[#f5f5fa7a]">MOVE</span>
                 </div>
@@ -127,7 +121,7 @@ const CampaignReview = () => {
                 <span className="text-sm text-[#f5f5fa7a]">Total Budget</span>
                 <div className="flex items-center gap-1">
                   <span className="text-[#f5f5faf4] font-medium text-lg">
-                    {campaignData.rewards.totalBudget}
+                    {rewards.totalBudget}
                   </span>
                   <span className="text-[#f5f5fa7a]">MOVE</span>
                 </div>
@@ -142,8 +136,7 @@ const CampaignReview = () => {
                 <div className="flex items-center gap-2">
                   <HiOutlineChartBar className="w-5 h-5 text-[#a855f7]" />
                   <span className="text-[#f5f5faf4]">
-                    {campaignData.rewards.minDataCount} -{' '}
-                    {campaignData.rewards.maxDataCount}
+                    {rewards.minDataCount} - {rewards.maxDataCount}
                   </span>
                 </div>
               </div>
@@ -171,36 +164,43 @@ const CampaignReview = () => {
                     Rate
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-[#f5f5fa7a] uppercase tracking-wider">
-                    Amount
+                    Amount (MOVE)
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#f5f5fa14]">
                 <tr>
-                  <td className="px-6 py-4 text-sm text-[#f5f5faf4]">
+                  <td className="px-6 py-4 text-sm text-[#f5f5faf4] flex items-center gap-2">
                     Platform Fee
+                    <span className="text-xs text-[#f5f5fa7a]">(Fixed)</span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-[#f5f5fa7a]">2.5%</td>
+                  <td className="px-6 py-4 text-sm text-[#f5f5fa7a]">
+                    {platformFeePercentage}%
+                  </td>
                   <td className="px-6 py-4 text-right text-sm text-[#f5f5faf4]">
-                    125 MOVE
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 text-sm text-[#f5f5faf4]">
-                    Network Fee
-                  </td>
-                  <td className="px-6 py-4 text-sm text-[#f5f5fa7a]">1%</td>
-                  <td className="px-6 py-4 text-right text-sm text-[#f5f5faf4]">
-                    50 MOVE
+                    {platformFee.toFixed(2)}
                   </td>
                 </tr>
                 <tr className="bg-[#f5f5fa14]">
                   <td className="px-6 py-4 text-sm font-medium text-[#f5f5faf4]">
-                    Total Fees
+                    Total Rewards
                   </td>
-                  <td className="px-6 py-4 text-sm text-[#f5f5fa7a]">3.5%</td>
+                  <td className="px-6 py-4 text-sm text-[#f5f5fa7a]">
+                    {maxSubmissions} × {rewardPerSubmission} MOVE
+                  </td>
                   <td className="px-6 py-4 text-right text-sm font-medium text-[#f5f5faf4]">
-                    175 MOVE
+                    {totalRewards.toFixed(2)}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 text-sm font-medium text-[#f5f5faf4]">
+                    Total Cost
+                  </td>
+                  <td className="px-6 py-4 text-sm text-[#f5f5fa7a]">
+                    Rewards + Fees
+                  </td>
+                  <td className="px-6 py-4 text-right text-sm font-medium text-[#f5f5faf4]">
+                    {(totalRewards + platformFee).toFixed(2)}
                   </td>
                 </tr>
               </tbody>
@@ -210,7 +210,9 @@ const CampaignReview = () => {
           <div className="flex items-center gap-2 mt-3">
             <HiInformationCircle className="w-4 h-4 text-[#f5f5fa7a]" />
             <p className="text-xs text-[#f5f5fa7a]">
-              Fees are deducted from the total budget when the campaign starts
+              Fixed platform fee of {platformFeePercentage}% (
+              {PLATFORM_FEE_BASIS_POINTS} basis points) is calculated on the
+              total rewards amount
             </p>
           </div>
         </div>

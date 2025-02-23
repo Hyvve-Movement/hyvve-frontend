@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { navigation } from '@/constants';
-import { MdOutlineMoreHoriz, MdOutlineSettings } from 'react-icons/md';
+import { MdOutlineSettings } from 'react-icons/md';
 import { FaDiceD20 } from 'react-icons/fa6';
 import { FaRegQuestionCircle, FaMediumM, FaFacebookF } from 'react-icons/fa';
 import { BsTwitterX, BsDiscord } from 'react-icons/bs';
@@ -64,10 +64,6 @@ const Sidebar = () => {
               {' '}
               <MdOutlineSettings className="text-[16px] group-hover: text-gray-400" />
               &nbsp; Settings
-            </span>
-            <span className="flex items-center text-gray-400 mt-4 text-[13px]">
-              <MdOutlineMoreHoriz className="text-[16px]  group-hover: " />
-              &nbsp; More
             </span>
             <span className="flex items-center text-gray-400 mt-4 text-[13px]">
               <FaRegQuestionCircle className="text-[16px]  group-hover: " />

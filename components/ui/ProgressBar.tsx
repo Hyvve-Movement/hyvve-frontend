@@ -45,7 +45,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       : `calc(${centerPositions[currentStep]}% - 0.75rem)`;
 
   return (
-    <div className="relative w-[898px] ml-[300px] mt-20">
+    <div className="relative w-[898px] 2xl:w-[1100px] mt-20">
       <div className="absolute top-1/2 w-full h-0.5 bg-[#f5f5fa14] left-0 transform -translate-y-1/2"></div>
       <div
         className="absolute top-1/2 left-0 h-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] transition-all duration-500 ease-in-out transform -translate-y-1/2 progress-bar-shadow"
@@ -66,7 +66,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
               <span
                 className={`text-[12px] leading-[20px] font-[400] ${
                   index === currentStep
-                    ? 'text-[]'
+                    ? 'text-[#f5f5faf4]'
                     : index < currentStep
                     ? 'text-[#f5f5faf4]'
                     : 'text-[#f5f5fa7a]'

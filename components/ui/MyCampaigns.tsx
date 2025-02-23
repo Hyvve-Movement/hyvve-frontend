@@ -9,9 +9,9 @@ const MyCampaigns = () => {
       </h1>
 
       <div className="mt-6 flex flex-col md:flex-row gap-8">
-        <CampaignCard />
-        <CampaignCard />
-        <CampaignCard />
+        <CampaignCard id="1" />
+        <CampaignCard id="2" />
+        <CampaignCard id="3" />
       </div>
     </div>
   );

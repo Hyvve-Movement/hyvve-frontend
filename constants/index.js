@@ -1,5 +1,5 @@
 import { AiOutlineHome } from 'react-icons/ai';
-import { FaExchangeAlt, FaUsers } from 'react-icons/fa';
+import { FaUsers } from 'react-icons/fa';
 import { FaUserCircle } from 'react-icons/fa';
 export const navigation = [
   {
@@ -12,11 +12,11 @@ export const navigation = [
     href: '/campaigns',
     icon: <AiOutlineHome className="bg-transparent" />,
   },
-  {
-    name: 'Marketplace',
-    href: '/marketplace',
-    icon: <FaExchangeAlt className="bg-transparent" />,
-  },
+  // {
+  //   name: 'Marketplace',
+  //   href: '/marketplace',
+  //   icon: <FaExchangeAlt className="bg-transparent" />,
+  // },
   {
     name: 'Profile',
     href: '/profile',

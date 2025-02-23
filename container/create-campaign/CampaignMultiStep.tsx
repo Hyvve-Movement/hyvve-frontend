@@ -1,48 +1,60 @@
 import React, { useState } from 'react';
 import ProgressBar from '@/components/ui/ProgressBar';
+import CampaignType from '@/components/ui/multistep-components/CampaignType';
+import CampaignDetails from '@/components/ui/multistep-components/CampaignDetails';
+import CampaignRewards from '@/components/ui/multistep-components/CampaignRewards';
+import CampaignReview from '@/components/ui/multistep-components/CampaignReview';
 
 const steps = [
-  { label: 'Basic Info', description: 'Campaign details and objectives' },
-  { label: 'Rewards', description: 'Set up campaign rewards' },
-  { label: 'Review', description: 'Review and launch campaign' },
-  { label: 'Launch', description: 'Launch campaign' },
-  { label: 'Success', description: 'Campaign launched successfully' },
+  { label: 'Campaign Type', description: '' },
+  { label: 'Campaign Details', description: '' },
+  { label: 'Campaign Rewards', description: '' },
+  { label: 'Review', description: '' },
+  { label: 'Launch', description: '' },
 ];
 
 const CampaignMultiStep = () => {
   const [currentStep, setCurrentStep] = useState(0);
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <ProgressBar steps={steps} currentStep={currentStep} />
+    <div className="max-w-[898px] 2xl:max-w-[1100px] mx-auto p-6">
+      {/* Progress Bar Container */}
+      <div className="flex justify-center">
+        <ProgressBar steps={steps} currentStep={currentStep} />
+      </div>
 
-      {/* Step content will go here */}
-      <div className="mt-8">
-        {currentStep === 0 && <div>Basic Info Step</div>}
-        {currentStep === 1 && <div>Rewards Step</div>}
-        {currentStep === 2 && <div>Review Step</div>}
-        {currentStep === 3 && <div>Launch Step</div>}
-        {currentStep === 4 && <div>Success Step</div>}
+      {/* Step Content Container */}
+      <div className="mt-8 flex justify-center">
+        <div className="w-full max-w-3xl">
+          {currentStep === 0 && <CampaignType />}
+          {currentStep === 1 && <CampaignDetails />}
+          {currentStep === 2 && <CampaignRewards />}
+          {currentStep === 3 && <CampaignReview />}
+          {currentStep === 4 && <div>Launch Step</div>}
+          {currentStep === 5 && <div>Success Step</div>}
+        </div>
       </div>
 
       {/* Navigation buttons */}
-      <div className="mt-8 flex justify-between">
-        <button
-          onClick={() => setCurrentStep((prev) => Math.max(0, prev - 1))}
-          disabled={currentStep === 0}
-          className="px-4 py-2 text-sm text-gray-300 border border-gray-700 rounded-md disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <button
-          onClick={() =>
-            setCurrentStep((prev) => Math.min(steps.length - 1, prev + 1))
-          }
-          disabled={currentStep === steps.length - 1}
-          className="px-4 py-2 text-sm text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-md disabled:opacity-50"
-        >
-          {currentStep === steps.length - 1 ? 'Launch Campaign' : 'Next'}
-        </button>
+      <div className="mt-8 flex justify-center">
+        <div className="w-full max-w-3xl flex justify-between">
+          <button
+            onClick={() => setCurrentStep((prev) => Math.max(0, prev - 1))}
+            disabled={currentStep === 0}
+            className="px-6 py-3 text-sm text-[#f5f5faf4] border border-[#f5f5fa14] rounded-xl disabled:opacity-50 hover:bg-[#f5f5fa08] transition-colors"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() =>
+              setCurrentStep((prev) => Math.min(steps.length - 1, prev + 1))
+            }
+            disabled={currentStep === steps.length - 1}
+            className="px-6 py-3 text-sm text-white bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-xl disabled:opacity-50 hover:opacity-90 transition-opacity"
+          >
+            {currentStep === steps.length - 1 ? 'Launch Campaign' : 'Next'}
+          </button>
+        </div>
       </div>
     </div>
   );

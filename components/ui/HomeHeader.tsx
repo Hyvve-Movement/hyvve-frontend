@@ -11,20 +11,6 @@ const HomeHeader = () => {
 
   return (
     <>
-      <div className="flex items-center gap-2 justify-end absolute top-6 right-10 ">
-        <button className="border border-gray-800 rounded-lg text-sm p-2 px-4 flex items-center gap-2">
-          <img
-            src="https://pbs.twimg.com/profile_images/1744477796301496320/z7AIB7_W_400x400.jpg"
-            alt=""
-            className="w-[28px] h-[28px] p-1  rounded-2xl"
-          />
-          Movement Bardock
-        </button>
-        <button className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-lg text-sm p-2 px-4">
-          Tutorials
-        </button>
-        <button className="gradient-border text-sm p-2">Connect Wallet</button>
-      </div>
       <div className="lg:max-w-[1100px] max-w-[1512px] relative mt-[70px]">
         <div className="relative z-10">
           <div className="text-white pt-5">

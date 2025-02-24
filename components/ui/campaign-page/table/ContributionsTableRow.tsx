@@ -2,6 +2,8 @@ import React from 'react';
 import Image from 'next/image';
 import { BsArrowRight } from 'react-icons/bs';
 import { HiShieldCheck, HiClock, HiExclamation } from 'react-icons/hi';
+import Avvvatars from 'avvvatars-react';
+import { octasToMove } from '@/utils/aptos/octasToMove';
 
 interface Creator {
   avatar: string;
@@ -15,7 +17,7 @@ interface Contribution {
   verificationStatus: 'Verified' | 'Pending' | 'Rejected';
   verifierReputation: number;
   qualityScore: number;
-  rewardStatus: 'Paid' | 'Pending' | 'Failed';
+  rewardStatus: 'Released' | 'Pending' | 'Failed';
   dataUrl: string;
   submittedAt: string;
   rewardAmount: number;
@@ -62,13 +64,7 @@ const ContributionsTableRow: React.FC<ContributionsTableRowProps> = React.memo(
         <td className="py-4 px-6">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Image
-                src={contribution.creator.avatar}
-                alt={contribution.creator.name}
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
+              <Avvvatars value={contribution.creator.address} size={40} />
               <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-[#0f0f17] border-2 border-[#6366f1]">
                 <HiShieldCheck
                   className={`w-3 h-3 ${getReputationColor(
@@ -83,10 +79,11 @@ const ContributionsTableRow: React.FC<ContributionsTableRowProps> = React.memo(
                   {contribution.creator.name}
                 </span>
                 <span className="text-[#f5f5fa7a] text-xs">
-                  {contribution.creator.address}
+                  {/* {contribution.creator.address} */}
                 </span>
               </div>
               <div className="flex items-center gap-1 mt-0.5">
+                <span className="text-[#f5f5fa4a] text-xs">Reputation Score</span>
                 <span
                   className={`text-xs ${getReputationColor(
                     contribution.creator.reputation
@@ -94,7 +91,6 @@ const ContributionsTableRow: React.FC<ContributionsTableRowProps> = React.memo(
                 >
                   {contribution.creator.reputation}
                 </span>
-                <span className="text-[#f5f5fa4a] text-xs">reputation</span>
               </div>
             </div>
           </div>
@@ -146,17 +142,18 @@ const ContributionsTableRow: React.FC<ContributionsTableRowProps> = React.memo(
             <div className="flex items-center gap-2">
               <span
                 className={`text-sm font-medium ${
-                  contribution.rewardStatus === 'Paid'
+                  contribution.rewardStatus === 'Released'
                     ? 'text-green-400'
                     : contribution.rewardStatus === 'Pending'
                     ? 'text-yellow-400'
                     : 'text-red-400'
                 }`}
               >
-                {contribution.rewardAmount} MOVE
+                {octasToMove(contribution.rewardAmount)}{' '}
+                <span className="text-[10px]">MOVE</span>
               </span>
             </div>
-            <span className="text-[#f5f5fa4a] text-xs">
+            <span className="text-gray-400 text-xs">
               {contribution.rewardStatus}
             </span>
           </div>
@@ -168,7 +165,7 @@ const ContributionsTableRow: React.FC<ContributionsTableRowProps> = React.memo(
         </td>
         <td className="py-4 px-6">
           <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#f5f5fa14] hover:bg-[#f5f5fa1a] transition-colors text-[#f5f5faf4] text-xs">
-            View 
+            View
             <BsArrowRight className="w-4 h-4" />
           </button>
         </td>

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   HiOutlinePencil,
   HiOutlineDocumentText,
   HiOutlineClipboardCheck,
   HiOutlineCalendar,
+  HiPlusCircle,
+  HiX,
 } from 'react-icons/hi';
 import { useCampaign } from '@/context/CampaignContext';
 
@@ -19,11 +21,74 @@ const CampaignDetails = () => {
   const { campaignData, updateCampaignDetails, errors } = useCampaign();
   const { details } = campaignData;
 
+  // Split the requirements and quality criteria strings into arrays for bullet points
+  const [requirementPoints, setRequirementPoints] = useState<string[]>(
+    details.requirements
+      ? details.requirements.split('|||').filter(Boolean)
+      : ['']
+  );
+  const [qualityCriteriaPoints, setQualityCriteriaPoints] = useState<string[]>(
+    details.qualityCriteria
+      ? details.qualityCriteria.split('|||').filter(Boolean)
+      : ['']
+  );
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    updateCampaignDetails({ [name]: value });
+    if (name !== 'requirements' && name !== 'qualityCriteria') {
+      updateCampaignDetails({ [name]: value });
+    }
+  };
+
+  const handleBulletPointChange = (
+    index: number,
+    value: string,
+    type: 'requirements' | 'qualityCriteria'
+  ) => {
+    if (type === 'requirements') {
+      const newPoints = [...requirementPoints];
+      newPoints[index] = value;
+      setRequirementPoints(newPoints);
+      updateCampaignDetails({
+        requirements: newPoints.filter(Boolean).join('|||'),
+      });
+    } else {
+      const newPoints = [...qualityCriteriaPoints];
+      newPoints[index] = value;
+      setQualityCriteriaPoints(newPoints);
+      updateCampaignDetails({
+        qualityCriteria: newPoints.filter(Boolean).join('|||'),
+      });
+    }
+  };
+
+  const addBulletPoint = (type: 'requirements' | 'qualityCriteria') => {
+    if (type === 'requirements') {
+      setRequirementPoints([...requirementPoints, '']);
+    } else {
+      setQualityCriteriaPoints([...qualityCriteriaPoints, '']);
+    }
+  };
+
+  const removeBulletPoint = (
+    index: number,
+    type: 'requirements' | 'qualityCriteria'
+  ) => {
+    if (type === 'requirements') {
+      const newPoints = requirementPoints.filter((_, i) => i !== index);
+      setRequirementPoints(newPoints.length ? newPoints : ['']);
+      updateCampaignDetails({
+        requirements: newPoints.filter(Boolean).join('|||'),
+      });
+    } else {
+      const newPoints = qualityCriteriaPoints.filter((_, i) => i !== index);
+      setQualityCriteriaPoints(newPoints.length ? newPoints : ['']);
+      updateCampaignDetails({
+        qualityCriteria: newPoints.filter(Boolean).join('|||'),
+      });
+    }
   };
 
   return (
@@ -87,30 +152,53 @@ const CampaignDetails = () => {
           )}
         </div>
 
-        {/* Requirements Textarea */}
+        {/* Requirements Bullet Points */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 mb-2">
-            <HiOutlineClipboardCheck className="w-5 h-5 text-[#a855f7]" />
-            <label
-              htmlFor="requirements"
-              className="block text-sm font-semibold text-[#f5f5faf4]"
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <HiOutlineClipboardCheck className="w-5 h-5 text-[#a855f7]" />
+              <label className="block text-sm font-semibold text-[#f5f5faf4]">
+                Requirements
+              </label>
+            </div>
+            <button
+              type="button"
+              onClick={() => addBulletPoint('requirements')}
+              className="flex items-center gap-1 text-sm text-[#a855f7] hover:text-[#8e44dd] transition-colors"
             >
-              Requirements
-            </label>
+              <HiPlusCircle className="w-5 h-5" />
+              Add Requirement
+            </button>
           </div>
-          <textarea
-            id="requirements"
-            name="requirements"
-            value={details.requirements}
-            onChange={handleChange}
-            rows={4}
-            className={`w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-              errors.details?.requirements
-                ? 'border-red-500'
-                : 'border-[#f5f5fa14]'
-            } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 resize-none`}
-            placeholder="List specific requirements for data submission"
-          />
+          <div className="space-y-3">
+            {requirementPoints.map((point, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="flex-1 relative">
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full bg-[#a855f7]" />
+                  <input
+                    type="text"
+                    value={point}
+                    onChange={(e) =>
+                      handleBulletPointChange(
+                        index,
+                        e.target.value,
+                        'requirements'
+                      )
+                    }
+                    className="w-full pl-8 pr-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200"
+                    placeholder="Enter requirement"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeBulletPoint(index, 'requirements')}
+                  className="text-[#f5f5fa4a] hover:text-red-500 transition-colors"
+                >
+                  <HiX className="w-5 h-5" />
+                </button>
+              </div>
+            ))}
+          </div>
           {errors.details?.requirements && (
             <p className="text-red-500 text-sm mt-1">
               {errors.details.requirements}
@@ -118,30 +206,53 @@ const CampaignDetails = () => {
           )}
         </div>
 
-        {/* Quality Criteria Textarea */}
+        {/* Quality Criteria Bullet Points */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 mb-2">
-            <HiOutlineClipboardCheck className="w-5 h-5 text-[#a855f7]" />
-            <label
-              htmlFor="qualityCriteria"
-              className="block text-sm font-semibold text-[#f5f5faf4]"
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <HiOutlineClipboardCheck className="w-5 h-5 text-[#a855f7]" />
+              <label className="block text-sm font-semibold text-[#f5f5faf4]">
+                Quality Criteria
+              </label>
+            </div>
+            <button
+              type="button"
+              onClick={() => addBulletPoint('qualityCriteria')}
+              className="flex items-center gap-1 text-sm text-[#a855f7] hover:text-[#8e44dd] transition-colors"
             >
-              Quality Criteria
-            </label>
+              <HiPlusCircle className="w-5 h-5" />
+              Add Criteria
+            </button>
           </div>
-          <textarea
-            id="qualityCriteria"
-            name="qualityCriteria"
-            value={details.qualityCriteria}
-            onChange={handleChange}
-            rows={4}
-            className={`w-full px-4 py-3 rounded-xl bg-[#f5f5fa14] border ${
-              errors.details?.qualityCriteria
-                ? 'border-red-500'
-                : 'border-[#f5f5fa14]'
-            } text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200 resize-none`}
-            placeholder="Define the quality standards for acceptable submissions"
-          />
+          <div className="space-y-3">
+            {qualityCriteriaPoints.map((point, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="flex-1 relative">
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full bg-[#a855f7]" />
+                  <input
+                    type="text"
+                    value={point}
+                    onChange={(e) =>
+                      handleBulletPointChange(
+                        index,
+                        e.target.value,
+                        'qualityCriteria'
+                      )
+                    }
+                    className="w-full pl-8 pr-4 py-3 rounded-xl bg-[#f5f5fa14] border border-[#f5f5fa14] text-[#f5f5faf4] focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:border-transparent placeholder-[#f5f5fa4a] transition-all duration-200"
+                    placeholder="Enter quality criteria"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeBulletPoint(index, 'qualityCriteria')}
+                  className="text-[#f5f5fa4a] hover:text-red-500 transition-colors"
+                >
+                  <HiX className="w-5 h-5" />
+                </button>
+              </div>
+            ))}
+          </div>
           {errors.details?.qualityCriteria && (
             <p className="text-red-500 text-sm mt-1">
               {errors.details.qualityCriteria}

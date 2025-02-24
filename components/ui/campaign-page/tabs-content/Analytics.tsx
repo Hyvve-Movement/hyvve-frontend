@@ -22,6 +22,32 @@ import {
   HiDocumentText,
 } from 'react-icons/hi';
 
+interface Campaign {
+  campaign_id: string;
+  campaign_type: string;
+  created_at: string;
+  creator_wallet_address: string;
+  current_contributions: number;
+  data_requirements: string;
+  description: string;
+  expiration: number;
+  is_active: boolean;
+  max_data_count: number;
+  metadata_uri: string;
+  min_data_count: number;
+  onchain_campaign_id: string;
+  platform_fee: number;
+  quality_criteria: string;
+  title: string;
+  total_budget: number;
+  transaction_hash: string;
+  unit_price: number;
+}
+
+interface AnalyticsProps {
+  campaign: Campaign;
+}
+
 interface StatCardProps {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
@@ -47,7 +73,7 @@ const qualityData = [
   { name: 'Low Quality', value: 10, color: '#f5f5fa14' },
 ];
 
-const Analytics = () => {
+const Analytics: React.FC<AnalyticsProps> = ({ campaign }) => {
   const totalSubmissions = submissionData.reduce(
     (acc, curr) => acc + curr.submissions,
     0

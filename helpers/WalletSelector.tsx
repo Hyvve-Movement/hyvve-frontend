@@ -89,73 +89,7 @@ export function WalletSelector() {
         )}
 
         {/* Dropdown Menu */}
-        <div
-          className={`absolute right-0 top-full mt-2 w-64 overflow-hidden transition-all duration-200 origin-top highest-z-index
-          ${
-            isDropdownOpen
-              ? 'opacity-100 scale-100'
-              : 'opacity-0 scale-95 pointer-events-none'
-          }`}
-        >
-          <div className="bg-[#1a1a1a] rounded-xl border border-[#f5f5fa14] shadow-xl overflow-hidden">
-            {/* Account Info Section */}
-            <div className="p-4 border-b border-[#f5f5fa14] bg-[#f5f5fa08]">
-              <p className="text-[#f5f5fa7a] text-xs">Connected Wallet</p>
-              <p className="text-[#f5f5faf4] font-medium mt-1">
-                {account?.ansName || truncateAddress(account?.address)}
-              </p>
-            </div>
-
-            {/* Actions Section */}
-            <div className="p-2">
-              {/* <button
-                onClick={copyAddress}
-                className="flex items-center gap-3 w-full p-3 text-left text-sm text-[#f5f5faf4] 
-                rounded-lg hover:bg-[#f5f5fa14] transition-all duration-200 group"
-              >
-                <div
-                  className="w-8 h-8 rounded-lg bg-[#f5f5fa08] flex items-center justify-center
-                group-hover:bg-[#f5f5fa14] transition-all duration-200"
-                >
-                  <Copy className="w-4 h-4 text-[#a855f7]" />
-                </div>
-                Copy Address
-              </button> */}
-
-              {wallet && isAptosConnectWallet(wallet) && (
-                <a
-                  href={APTOS_CONNECT_ACCOUNT_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 w-full p-3 text-left text-sm text-[#f5f5faf4] 
-                  rounded-lg hover:bg-[#f5f5fa14] transition-all duration-200 group"
-                >
-                  <div
-                    className="w-8 h-8 rounded-lg bg-[#f5f5fa08] flex items-center justify-center
-                  group-hover:bg-[#f5f5fa14] transition-all duration-200"
-                  >
-                    <User className="w-4 h-4 text-[#a855f7]" />
-                  </div>
-                  Account Settings
-                </a>
-              )}
-
-              <button
-                onClick={handleDisconnect}
-                className="flex items-center gap-3 w-full p-3 text-left text-sm text-red-400
-                rounded-lg hover:bg-[#f5f5fa14] transition-all duration-200 group"
-              >
-                <div
-                  className="w-8 h-8 rounded-lg bg-[#f5f5fa08] flex items-center justify-center
-                group-hover:bg-[#f5f5fa14] transition-all duration-200"
-                >
-                  <LogOut className="w-4 h-4" />
-                </div>
-                Disconnect
-              </button>
-            </div>
-          </div>
-        </div>
+        
       </div>
       {isDialogOpen && (
         <Portal>

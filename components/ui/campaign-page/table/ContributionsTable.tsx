@@ -1,102 +1,158 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import ContributionsTableRow from './ContributionsTableRow';
-import { HiFilter, HiSearch, HiChevronDown } from 'react-icons/hi';
+import { HiFilter } from 'react-icons/hi';
+import { useQuery } from '@tanstack/react-query';
 
-interface Creator {
-  avatar: string;
-  name: string;
-  address: string;
-  reputation: number;
-}
-
-interface Contribution {
-  id: number;
-  creator: Creator;
-  verificationStatus: 'Verified' | 'Pending' | 'Rejected';
+interface TableContribution {
+  id: string;
+  creator: {
+    avatar: string;
+    name: string;
+    address: string;
+    reputation: number;
+  };
+  verificationStatus: 'Verified' | 'Pending';
   verifierReputation: number;
   qualityScore: number;
-  rewardStatus: 'Paid' | 'Pending' | 'Failed';
+  rewardStatus: 'Released' | 'Pending';
   dataUrl: string;
   submittedAt: string;
   rewardAmount: number;
 }
 
-const dummyData: Contribution[] = [
-  {
-    id: 1,
-    creator: {
-      avatar:
-        'https://pbs.twimg.com/profile_images/1744477796301496320/z7AIB7_W_400x400.jpg',
-      name: 'Movement Bardock',
-      address: '0x456...858',
-      reputation: 925,
-    },
-    verificationStatus: 'Verified',
-    verifierReputation: 98,
-    qualityScore: 95,
-    rewardStatus: 'Paid',
-    dataUrl: 'https://data.example.com/1',
-    submittedAt: '2024-02-15T10:30:00Z',
-    rewardAmount: 50,
-  },
-  {
-    id: 2,
-    creator: {
-      avatar:
-        'https://pbs.twimg.com/profile_images/1744477796301496320/z7AIB7_W_400x400.jpg',
-      name: 'John Doe',
-      address: '0x123...456',
-      reputation: 878,
-    },
-    verificationStatus: 'Pending',
-    verifierReputation: 85,
-    qualityScore: 88,
-    rewardStatus: 'Pending',
-    dataUrl: 'https://data.example.com/2',
-    submittedAt: '2024-02-15T09:15:00Z',
-    rewardAmount: 50,
-  },
-  {
-    id: 3,
-    creator: {
-      avatar:
-        'https://pbs.twimg.com/profile_images/1744477796301496320/z7AIB7_W_400x400.jpg',
-      name: 'Alice Smith',
-      address: '0x789...012',
-      reputation: 812,
-    },
-    verificationStatus: 'Rejected',
-    verifierReputation: 92,
-    qualityScore: 75,
-    rewardStatus: 'Failed',
-    dataUrl: 'https://data.example.com/3',
-    submittedAt: '2024-02-15T08:45:00Z',
-    rewardAmount: 50,
-  },
-];
+interface Contribution {
+  contribution_id: string;
+  campaign_id: string;
+  contributor: string;
+  data_url: string;
+  data_hash: string;
+  timestamp: string;
+  verification_scores: {
+    verifier_reputation: number;
+    quality_score: number;
+  };
+  is_verified: boolean;
+  reward_released: boolean;
+  contributor_reputation?: number;
+}
+
+interface ApiResponse {
+  contributions: Contribution[];
+  statistics: {
+    totalContributions: number;
+    verifiedContributions: number;
+    rewardsReleased: number;
+    verificationRate: number;
+    rewardRate: number;
+  };
+  additionalInfo: {
+    campaignDetails: {
+      unitPrice: number;
+      // ... other fields if needed
+    } | null;
+    escrowInfo: {
+      unitReward: number;
+      // ... other fields if needed
+    } | null;
+  } | null;
+}
 
 const ContributionsTable: React.FC = () => {
+  const router = useRouter();
+  const { id } = router.query;
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
 
-  const filteredData = dummyData.filter((contribution) => {
-    const matchesSearch =
-      contribution.creator.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      contribution.creator.address
+  const { data, isLoading, isError, isFetching } = useQuery<ApiResponse>({
+    queryKey: ['contributions', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const response = await fetch(
+        `/api/campaign/getCampaignContributions?campaignId=test_campaign_86`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch contributions');
+      }
+      return response.json();
+    },
+    enabled: !!id,
+    staleTime: 0, // Consider data stale immediately
+    cacheTime: 0, // Don't cache the data
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchOnMount: true, // Refetch when component mounts
+    refetchInterval: 15000, // Refetch every 5 seconds
+  });
+
+  const filteredData =
+    data?.contributions.filter((contribution) => {
+      const matchesSearch = contribution.contributor
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === 'All' ||
-      contribution.verificationStatus === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+
+      const matchesStatus =
+        statusFilter === 'All' ||
+        (statusFilter === 'Verified' && contribution.is_verified) ||
+        (statusFilter === 'Pending' && !contribution.is_verified);
+
+      return matchesSearch && matchesStatus;
+    }) || [];
+
+  // Show loading only on initial load (when no data is available)
+  if (isLoading && !data) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-[#f5f5fa7a] text-sm animate-pulse">
+          Loading contributions...
+        </p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-400 text-sm">
+          Error loading contributions. Please try again.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 mt-5">
+      {/* Stats Summary */}
+      {/* {data?.statistics && (
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="p-4 rounded-lg bg-[#f5f5fa0a]">
+            <p className="text-[#f5f5fa7a] text-xs">Total Contributions</p>
+            <p className="text-[#f5f5faf4] text-xl font-semibold">
+              {data.statistics.totalContributions}
+            </p>
+          </div>
+          <div className="p-4 rounded-lg bg-[#f5f5fa0a]">
+            <p className="text-[#f5f5fa7a] text-xs">Verified</p>
+            <p className="text-[#f5f5faf4] text-xl font-semibold">
+              {data.statistics.verifiedContributions}
+            </p>
+          </div>
+          <div className="p-4 rounded-lg bg-[#f5f5fa0a]">
+            <p className="text-[#f5f5fa7a] text-xs">Verification Rate</p>
+            <p className="text-[#f5f5faf4] text-xl font-semibold">
+              {data.statistics.verificationRate.toFixed(1)}%
+            </p>
+          </div>
+          <div className="p-4 rounded-lg bg-[#f5f5fa0a]">
+            <p className="text-[#f5f5fa7a] text-xs">Rewards Released</p>
+            <p className="text-[#f5f5faf4] text-xl font-semibold">
+              {data.statistics.rewardsReleased}
+            </p>
+          </div>
+        </div>
+      )} */}
+
       {/* Table */}
-      <div className=" rounded-xl border border-[#f5f5fa14] overflow-hidden">
+      <div className="rounded-xl border border-[#f5f5fa14] overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#f5f5fa14]">
@@ -130,10 +186,39 @@ const ContributionsTable: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#f5f5fa14]">
-            {filteredData.map((contribution: Contribution) => (
+            {filteredData.map((contribution) => (
               <ContributionsTableRow
-                key={contribution.id}
-                contribution={contribution}
+                key={contribution.contribution_id}
+                contribution={
+                  {
+                    id: contribution.contribution_id,
+                    creator: {
+                      avatar:
+                        'https://pbs.twimg.com/profile_images/1744477796301496320/z7AIB7_W_400x400.jpg',
+                      name: `${contribution.contributor.slice(
+                        0,
+                        6
+                      )}...${contribution.contributor.slice(-4)}`,
+                      address: contribution.contributor,
+                      reputation: contribution.contributor_reputation || 0,
+                    },
+                    verificationStatus: contribution.is_verified
+                      ? 'Verified'
+                      : 'Pending',
+                    verifierReputation:
+                      contribution.verification_scores?.verifier_reputation ||
+                      0,
+                    qualityScore:
+                      contribution.verification_scores?.quality_score || 0,
+                    rewardStatus: contribution.reward_released
+                      ? 'Released'
+                      : 'Pending',
+                    dataUrl: contribution.data_url,
+                    submittedAt: contribution.timestamp,
+                    rewardAmount:
+                      data?.additionalInfo?.escrowInfo?.unitReward || 0,
+                  } as TableContribution
+                }
               />
             ))}
           </tbody>

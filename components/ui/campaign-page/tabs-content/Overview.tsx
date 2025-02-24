@@ -9,22 +9,89 @@ import {
   HiArrowRight,
 } from 'react-icons/hi';
 import PaymentBreakdown from '../../cards/PaymentBreakdown';
+import { useQuery } from '@tanstack/react-query';
 
-interface CampaignStats {
-  totalSubmissions: number;
-  avgQualityScore: number;
-  activeContributors: number;
-  timeRemaining: string;
+interface Campaign {
+  campaign_id: string;
+  campaign_type: string;
+  created_at: string;
+  creator_wallet_address: string;
+  current_contributions: number;
+  data_requirements: string;
+  description: string;
+  expiration: number;
+  is_active: boolean;
+  max_data_count: number;
+  metadata_uri: string;
+  min_data_count: number;
+  onchain_campaign_id: string;
+  platform_fee: number;
+  quality_criteria: string;
+  title: string;
+  total_budget: number;
+  transaction_hash: string;
+  unit_price: number;
 }
 
-const campaignStats: CampaignStats = {
-  totalSubmissions: 156,
-  avgQualityScore: 92,
-  activeContributors: 24,
-  timeRemaining: '5 days',
-};
+interface UserReputation {
+  reputation_score: number;
+  contribution_count: number;
+  successful_payments: number;
+  has_store: boolean;
+}
 
-const Overview = () => {
+interface OverviewProps {
+  campaign: Campaign;
+}
+
+const Overview: React.FC<OverviewProps> = ({ campaign }) => {
+  // Format the creation date
+  const createdDate = new Date(campaign.created_at).toLocaleDateString(
+    'en-US',
+    {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }
+  );
+
+  // Format the expiration date
+  const expirationDate = new Date(campaign.expiration * 1000);
+  const timeRemaining = Math.max(
+    0,
+    Math.floor((expirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+  );
+
+  // Split requirements and quality criteria into bullet points
+  const requirements = campaign.data_requirements.split('|||').filter(Boolean);
+  const qualityCriteria = campaign.quality_criteria
+    .split('|||')
+    .filter(Boolean);
+
+  // Format wallet address for display
+  const shortenedAddress = `${campaign.creator_wallet_address.slice(
+    0,
+    6
+  )}...${campaign.creator_wallet_address.slice(-4)}`;
+
+  // Fetch user reputation
+  const { data: reputationData, isLoading: isLoadingReputation } = useQuery<{
+    message: string;
+    reputation: UserReputation;
+  }>({
+    queryKey: ['userReputation', campaign.creator_wallet_address],
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/campaign/getUserReputation?address=${campaign.creator_wallet_address}`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch reputation');
+      }
+      return response.json();
+    },
+    staleTime: 30000,
+  });
+
   return (
     <div className="space-y-8">
       {/* Header Section */}
@@ -32,7 +99,11 @@ const Overview = () => {
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <Avvvatars value="John Doe" size={64} style="shape" />
+              <Avvvatars
+                value={campaign.creator_wallet_address}
+                size={64}
+                style="shape"
+              />
               <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-6 h-6 rounded-full bg-[#0f0f17] border-2 border-[#6366f1]">
                 <HiShieldCheck className="w-3.5 h-3.5 text-purple-400" />
               </div>
@@ -40,15 +111,32 @@ const Overview = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-[#f5f5faf4] text-xl font-semibold">
-                  John Doe
+                  {shortenedAddress}
                 </h2>
                 <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white">
                   Campaign Owner
                 </span>
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[#f5f5fa7a] text-sm">0x123...456</span>
-                <span className="text-purple-400 text-sm">878 reputation</span>
+                <span className="text-[#f5f5fa7a] text-sm">
+                  {campaign.campaign_type} Campaign
+                </span>
+
+                {isLoadingReputation ? (
+                  <span className="text-purple-400 text-sm animate-pulse">
+                    Loading reputation...
+                  </span>
+                ) : (
+                  <span className="text-purple-400 text-sm">
+                    {reputationData?.reputation.reputation_score === 0 ? (
+                      <>New Creator</>
+                    ) : (
+                      <>
+                        {reputationData?.reputation.reputation_score} reputation
+                      </>
+                    )}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -57,17 +145,17 @@ const Overview = () => {
             <div className="flex items-center gap-2">
               <HiOutlineTag className="w-5 h-5 text-[#a855f7]" />
               <h1 className="text-[#f5f5faf4] text-2xl font-bold">
-                Health and Wellness Data Collection
+                {campaign.title}
               </h1>
             </div>
             <div className="flex items-center gap-4 text-[#f5f5fa7a] text-sm">
               <div className="flex items-center gap-1">
                 <HiOutlineCalendar className="w-4 h-4" />
-                <span>Created Feb 15, 2024</span>
+                <span>Created {createdDate}</span>
               </div>
               <div className="flex items-center gap-1">
                 <HiOutlineClock className="w-4 h-4" />
-                <span>Ends in {campaignStats.timeRemaining}</span>
+                <span>Ends in {timeRemaining} days</span>
               </div>
             </div>
           </div>
@@ -89,10 +177,7 @@ const Overview = () => {
               </div>
               <div className="space-y-4">
                 <p className="text-[#f5f5faf4] leading-relaxed">
-                  We are collecting comprehensive health and wellness data to
-                  improve our understanding of community well-being. This
-                  campaign focuses on gathering detailed information about daily
-                  activities, nutrition, and general health metrics.
+                  {campaign.description}
                 </p>
                 <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[#f5f5fa14]">
                   <div>
@@ -100,18 +185,12 @@ const Overview = () => {
                       Requirements
                     </h4>
                     <ul className="space-y-2 text-[#f5f5faf4] text-sm">
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
-                        Daily activity logs (min. 7 days)
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
-                        Nutritional information
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
-                        Health metrics (optional)
-                      </li>
+                      {requirements.map((req, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
+                          {req}
+                        </li>
+                      ))}
                     </ul>
                   </div>
                   <div>
@@ -119,18 +198,12 @@ const Overview = () => {
                       Quality Criteria
                     </h4>
                     <ul className="space-y-2 text-[#f5f5faf4] text-sm">
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
-                        Complete daily records
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
-                        Accurate timestamps
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
-                        Detailed descriptions
-                      </li>
+                      {qualityCriteria.map((criteria, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
+                          {criteria}
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -142,10 +215,9 @@ const Overview = () => {
         {/* Payment Breakdown */}
         <div>
           <PaymentBreakdown
-            totalBudget={5000}
+            totalBudget={campaign?.total_budget}
             contributorsCount={24}
-            submissionsCount={156}
-            remainingBudget={3200}
+            submissionsCount={campaign?.current_contributions}
             currency="MOVE"
           />
         </div>

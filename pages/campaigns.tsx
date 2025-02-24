@@ -5,7 +5,9 @@ import ActiveCampaigns from '@/container/campaigns/ActiveCampaigns'
 const Campaigns = () => {
   return (
     <Layout>
-      <ActiveCampaigns />
+      <div className="ml-[250px]">
+        <ActiveCampaigns />
+      </div>
     </Layout>
   )
 }

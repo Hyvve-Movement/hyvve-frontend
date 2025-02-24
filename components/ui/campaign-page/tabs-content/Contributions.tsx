@@ -1,8 +1,34 @@
 import React from 'react';
 import ContributionsTable from '../table/ContributionsTable';
-import { IoCloudDownloadOutline } from "react-icons/io5";
+import { IoCloudDownloadOutline } from 'react-icons/io5';
 
-const Contributions = () => {
+interface Campaign {
+  campaign_id: string;
+  campaign_type: string;
+  created_at: string;
+  creator_wallet_address: string;
+  current_contributions: number;
+  data_requirements: string;
+  description: string;
+  expiration: number;
+  is_active: boolean;
+  max_data_count: number;
+  metadata_uri: string;
+  min_data_count: number;
+  onchain_campaign_id: string;
+  platform_fee: number;
+  quality_criteria: string;
+  title: string;
+  total_budget: number;
+  transaction_hash: string;
+  unit_price: number;
+}
+
+interface ContributionsProps {
+  campaign: Campaign;
+}
+
+const Contributions: React.FC<ContributionsProps> = ({ campaign }) => {
   return (
     <div className="w-[1100px]">
       <h2 className="text-white text-lg font-semibold tracking-[2px]">
@@ -25,4 +51,4 @@ const Contributions = () => {
   );
 };
 
-export default Contributions
+export default Contributions;

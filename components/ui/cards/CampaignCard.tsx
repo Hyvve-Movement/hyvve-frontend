@@ -3,25 +3,51 @@ import Avvvatars from 'avvvatars-react';
 import Link from 'next/link';
 
 interface CampaignCardProps {
-  id: string;
+  campaign: {
+    campaign_id: string;
+    onchain_campaign_id: string;
+    creator_wallet_address: string;
+    current_contributions: number;
+    description: string;
+    expiration: number;
+    is_active: boolean;
+    max_data_count: number;
+    title: string;
+    total_budget: number;
+    unit_price: number;
+  };
 }
 
-const CampaignCard: React.FC<CampaignCardProps> = ({ id }) => {
+const CampaignCard: React.FC<CampaignCardProps> = ({ campaign }) => {
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
   return (
     <Link
-      href={`/detailed-campaign/${id}`}
-      className="radial-gradient-border border border-gray-800 rounded-xl p-6 w-[370px] h-[260px] cursor-pointer hover:opacity-90 transition-opacity"
+      href={`/detailed-campaign/${campaign.onchain_campaign_id}`}
+      className="radial-gradient-border border border-gray-800 rounded-xl p-6 h-[260px] cursor-pointer hover:opacity-90 transition-opacity"
     >
       <div>
         <div className="inner-content">
           <div className="flex items-center gap-3">
-            <Avvvatars value="tim@apple.com" style="shape" size={50} />
+            <Avvvatars
+              value={campaign.creator_wallet_address}
+              style="shape"
+              size={50}
+            />
             <div>
-              <h2 className="text-white text-sm">Campaign Name</h2>
+              <h2 className="text-white text-sm">{campaign.title}</h2>
             </div>
-            <span className="absolute top-0 right-0 bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white text-xs p-1 px-3 rounded-md rounded-bl-[20px] rounded-l-none rounded-tr-[20px]">
-              New
-            </span>
+            {campaign.is_active && (
+              <span className="absolute top-0 right-0 bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white text-xs p-1 px-3 rounded-md rounded-bl-[20px] rounded-l-none rounded-tr-[20px]">
+                Active
+              </span>
+            )}
           </div>
 
           <div>
@@ -39,19 +65,27 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ id }) => {
           <div className="grid grid-cols-2 gap-4 mt-6 ml-2">
             <div className="border-r border-b border-gray-800">
               <p className="text-gray-400 text-xs">Total Contributions</p>
-              <p className="text-white font-medium mt-1">6</p>
+              <p className="text-white font-medium mt-1">
+                {campaign.current_contributions}
+              </p>
             </div>
             <div className="border-b pb-2 border-gray-800 pl-9">
               <p className="text-gray-400 text-xs">Campaign Budget</p>
-              <p className="text-white font-medium mt-1">20 MOVE</p>
+              <p className="text-white font-medium mt-1">
+                {campaign.total_budget / 100000000} MOVE
+              </p>
             </div>
-            <div className="border-r  border-gray-800">
-              <p className="text-gray-400 text-xs">Min Data Count</p>
-              <p className="text-white font-medium mt-1">Undisclosed</p>
+            <div className="border-r border-gray-800">
+              <p className="text-gray-400 text-xs">Max Data Count</p>
+              <p className="text-white font-medium mt-1">
+                {campaign.max_data_count}
+              </p>
             </div>
             <div className="pl-9">
               <p className="text-gray-400 text-xs">Expiration Date</p>
-              <p className="text-white font-medium mt-1">Feb 20, 2025</p>
+              <p className="text-white font-medium mt-1">
+                {formatDate(campaign.expiration)}
+              </p>
             </div>
           </div>
         </div>

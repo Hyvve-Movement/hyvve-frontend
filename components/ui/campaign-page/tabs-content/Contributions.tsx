@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ContributionsTable from '../table/ContributionsTable';
 import { IoCloudDownloadOutline } from 'react-icons/io5';
+import { HiSparkles } from 'react-icons/hi';
+import BulkDecryptModal from '@/components/modals/BulkDecryptModal';
+import toast from 'react-hot-toast';
 
 interface Campaign {
   campaign_id: string;
@@ -29,24 +32,46 @@ interface ContributionsProps {
 }
 
 const Contributions: React.FC<ContributionsProps> = ({ campaign }) => {
+  const [isBulkDecryptOpen, setIsBulkDecryptOpen] = useState(false);
+  const [contributions, setContributions] = useState<any[]>([]); // We'll get this from ContributionsTable
+
+  const handleExportClick = () => {
+    if (contributions.length === 0) {
+      toast('No contributions available to export', {
+        icon: '⚠️',
+      });
+      return;
+    }
+    setIsBulkDecryptOpen(true);
+  };
+
   return (
     <div className="w-[1100px]">
       <h2 className="text-white text-lg font-semibold tracking-[2px]">
         Campaign Contributions
       </h2>
-      <div className="flex  gap-2">
-        <button className="gradient-border p-2 mt-4 text-xs  font-semibold flex items-center gap-2">
-          <IoCloudDownloadOutline className="text-white" />
-          Export data as CSV
-        </button>
-        {/* <p className="text-gray-300 text-sm font-semibold">
-          Total contributions: 100
-        </p>
-        <p className="text-gray-300 text-sm font-semibold">
-          Total contributions: 100
-        </p> */}
+      <div className="flex gap-2">
+        <div className="relative">
+          <button
+            onClick={handleExportClick}
+            className="gradient-border p-2 mt-4 text-xs font-semibold flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <IoCloudDownloadOutline className="text-white" />
+            Export data
+            <div className="absolute -top-2 -right-2 bg-gradient-to-r from-[#6366f1] to-[#a855f7] px-2 py-0.5 rounded-full flex items-center gap-1 shadow-lg">
+              <HiSparkles className="w-3 h-3 text-white" />
+              <span className="text-[10px] font-bold text-white">PREMIUM</span>
+            </div>
+          </button>
+        </div>
       </div>
-      <ContributionsTable />
+      <ContributionsTable onContributionsChange={setContributions} />
+
+      <BulkDecryptModal
+        isOpen={isBulkDecryptOpen}
+        onClose={() => setIsBulkDecryptOpen(false)}
+        contributions={contributions}
+      />
     </div>
   );
 };

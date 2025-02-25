@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import ContributionsTableRow from './ContributionsTableRow';
 import { HiFilter } from 'react-icons/hi';
@@ -58,7 +58,20 @@ interface ApiResponse {
   } | null;
 }
 
-const ContributionsTable: React.FC = () => {
+interface ContributionsTableProps {
+  onContributionsChange: (
+    contributions: Array<{
+      dataUrl: string;
+      creator: {
+        name: string;
+      };
+    }>
+  ) => void;
+}
+
+const ContributionsTable: React.FC<ContributionsTableProps> = ({
+  onContributionsChange,
+}) => {
   const router = useRouter();
   const { id } = router.query;
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,26 +90,50 @@ const ContributionsTable: React.FC = () => {
       return response.json();
     },
     enabled: !!id,
-    staleTime: 0, // Consider data stale immediately
-    cacheTime: 0, // Don't cache the data
-    refetchOnWindowFocus: true, // Refetch when window regains focus
-    refetchOnMount: true, // Refetch when component mounts
-    refetchInterval: 15000, // Refetch every 5 seconds
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 15000,
   });
 
-  const filteredData =
-    data?.contributions.filter((contribution) => {
-      const matchesSearch = contribution.contributor
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+  // Memoize the filtered data
+  const filteredData = useMemo(
+    () =>
+      data?.contributions?.filter((contribution) => {
+        const matchesSearch = contribution.contributor
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
 
-      const matchesStatus =
-        statusFilter === 'All' ||
-        (statusFilter === 'Verified' && contribution.is_verified) ||
-        (statusFilter === 'Pending' && !contribution.is_verified);
+        const matchesStatus =
+          statusFilter === 'All' ||
+          (statusFilter === 'Verified' && contribution.is_verified) ||
+          (statusFilter === 'Pending' && !contribution.is_verified);
 
-      return matchesSearch && matchesStatus;
-    }) || [];
+        return matchesSearch && matchesStatus;
+      }) || [],
+    [data?.contributions, searchTerm, statusFilter]
+  );
+
+  // Memoize the transformed data
+  const transformedData = useMemo(
+    () =>
+      filteredData.map((contribution) => ({
+        dataUrl: contribution.data_url,
+        creator: {
+          name: `${contribution.contributor.slice(
+            0,
+            6
+          )}...${contribution.contributor.slice(-4)}`,
+        },
+      })),
+    [filteredData]
+  );
+
+  // Update parent component only when transformed data changes
+  React.useEffect(() => {
+    onContributionsChange(transformedData);
+  }, [transformedData, onContributionsChange]);
 
   // Show loading only on initial load (when no data is available)
   if (isLoading && !data) {

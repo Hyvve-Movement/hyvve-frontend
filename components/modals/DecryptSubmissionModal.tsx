@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { HiX, HiKey, HiCloudDownload, HiLockOpen } from 'react-icons/hi';
 import { decryptFile } from '@/utils/crypto/generateCampaignKeys';
@@ -18,31 +18,53 @@ const DecryptSubmissionModal: React.FC<DecryptSubmissionModalProps> = ({
   const [privateKey, setPrivateKey] = useState('');
   const [ipfsHash, setIpfsHash] = useState(initialIpfsHash || '');
   const [isDecrypting, setIsDecrypting] = useState(false);
-  const [decryptedFile, setDecryptedFile] = useState<ArrayBuffer | null>(null);
+  const [decryptedFile, setDecryptedFile] = useState<{
+    data: ArrayBuffer;
+    mimeType: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Update ipfsHash when prop changes
-  useEffect(() => {
+  React.useEffect(() => {
     if (initialIpfsHash) {
       setIpfsHash(initialIpfsHash);
     }
   }, [initialIpfsHash]);
 
+  const detectMimeType = (buffer: ArrayBuffer): string => {
+    const arr = new Uint8Array(buffer).subarray(0, 4);
+    const header = Array.from(arr)
+      .map((byte) => byte.toString(16))
+      .join('')
+      .toUpperCase();
+
+    switch (header) {
+      case '89504E47':
+        return 'image/png';
+      case 'FFD8FFE0':
+      case 'FFD8FFE1':
+      case 'FFD8FFE2':
+      case 'FFD8FFE3':
+        return 'image/jpeg';
+      case '47494638':
+        return 'image/gif';
+      case '52494646':
+        return 'image/webp';
+      default:
+        return 'application/octet-stream';
+    }
+  };
+
   const validatePrivateKey = (key: string): boolean => {
     try {
-      // Check if it's a valid base64 string
       if (!key.match(/^[A-Za-z0-9+/]*={0,2}$/)) {
         throw new Error(
           'Invalid private key format. Please provide a valid base64 encoded RSA private key.'
         );
       }
-
-      // Try decoding the base64 string
       const decoded = atob(key);
       if (!decoded) {
         throw new Error('Invalid private key format');
       }
-
       return true;
     } catch (err) {
       setError(
@@ -66,7 +88,6 @@ const DecryptSubmissionModal: React.FC<DecryptSubmissionModalProps> = ({
     setError(null);
 
     try {
-      // Fetch encrypted data from IPFS
       const response = await fetch(
         `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
       );
@@ -75,18 +96,19 @@ const DecryptSubmissionModal: React.FC<DecryptSubmissionModalProps> = ({
       }
 
       const encryptedData = new Uint8Array(await response.arrayBuffer());
-
       if (encryptedData.length === 0) {
         throw new Error('Received empty data from IPFS');
       }
 
-      // Decrypt the file
       try {
         const decryptedData = await decryptFile(encryptedData, privateKey);
         if (!decryptedData || decryptedData.byteLength === 0) {
           throw new Error('Decryption resulted in empty data');
         }
-        setDecryptedFile(decryptedData);
+
+        const mimeType = detectMimeType(decryptedData);
+
+        setDecryptedFile({ data: decryptedData, mimeType });
         toast.success('File decrypted successfully!');
       } catch (decryptError) {
         console.error('Decryption error details:', decryptError);
@@ -109,11 +131,14 @@ const DecryptSubmissionModal: React.FC<DecryptSubmissionModalProps> = ({
     if (!decryptedFile) return;
 
     try {
-      const blob = new Blob([decryptedFile]);
+      const blob = new Blob([decryptedFile.data], {
+        type: decryptedFile.mimeType,
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'decrypted_submission';
+      const extension = decryptedFile.mimeType.split('/')[1] || 'bin';
+      a.download = `decrypted_submission.${extension}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -215,8 +240,11 @@ const DecryptSubmissionModal: React.FC<DecryptSubmissionModalProps> = ({
 
                 {decryptedFile && (
                   <div className="p-4 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-xl">
-                    <p className="text-[#22c55e] text-sm mb-3">
+                    <p className="text-[#22c55e] text-sm mb-1">
                       File decrypted successfully!
+                    </p>
+                    <p className="text-[#f5f5fa7a] text-xs mb-3">
+                      File type: {decryptedFile.mimeType}
                     </p>
                     <button
                       onClick={handleDownload}

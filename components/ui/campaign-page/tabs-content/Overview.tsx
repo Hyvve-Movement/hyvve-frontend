@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Avvvatars from 'avvvatars-react';
 import {
   HiOutlineInformationCircle,
@@ -10,28 +10,8 @@ import {
 } from 'react-icons/hi';
 import PaymentBreakdown from '../../cards/PaymentBreakdown';
 import { useQuery } from '@tanstack/react-query';
-
-interface Campaign {
-  campaign_id: string;
-  campaign_type: string;
-  created_at: string;
-  creator_wallet_address: string;
-  current_contributions: number;
-  data_requirements: string;
-  description: string;
-  expiration: number;
-  is_active: boolean;
-  max_data_count: number;
-  metadata_uri: string;
-  min_data_count: number;
-  onchain_campaign_id: string;
-  platform_fee: number;
-  quality_criteria: string;
-  title: string;
-  total_budget: number;
-  transaction_hash: string;
-  unit_price: number;
-}
+import SubmitDataModal from '@/components/modals/SubmitDataModal';
+import useCampaignStore, { Campaign } from '@/helpers/store/useCampaignStore';
 
 interface UserReputation {
   reputation_score: number;
@@ -45,6 +25,13 @@ interface OverviewProps {
 }
 
 const Overview: React.FC<OverviewProps> = ({ campaign }) => {
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const { setCampaign } = useCampaignStore();
+
+  useEffect(() => {
+    setCampaign(campaign);
+  }, [campaign, setCampaign]);
+
   // Format the creation date
   const createdDate = new Date(campaign.created_at).toLocaleDateString(
     'en-US',
@@ -176,7 +163,7 @@ const Overview: React.FC<OverviewProps> = ({ campaign }) => {
                 </h3>
               </div>
               <div className="space-y-4">
-                <p className="text-[#f5f5faf4] leading-relaxed">
+                <p className="text-[#f5f5faf4] text-sm leading-relaxed">
                   {campaign.description}
                 </p>
                 <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[#f5f5fa14]">
@@ -222,10 +209,18 @@ const Overview: React.FC<OverviewProps> = ({ campaign }) => {
           />
         </div>
       </div>
-      <button className="flex text-sm items-center gap-2 px-6 py-3 rounded-xl gradient-border text-white font-semibold hover:opacity-90 transition-opacity">
+      <button
+        onClick={() => setIsSubmitModalOpen(true)}
+        className="flex text-sm items-center gap-2 px-6 py-3 rounded-xl gradient-border text-white font-semibold hover:opacity-90 transition-opacity"
+      >
         Submit Data
         <HiArrowRight className="w-5 h-5" />
       </button>
+
+      <SubmitDataModal
+        isOpen={isSubmitModalOpen}
+        onClose={() => setIsSubmitModalOpen(false)}
+      />
     </div>
   );
 };

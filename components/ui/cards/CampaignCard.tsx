@@ -40,8 +40,8 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ campaign }) => {
               style="shape"
               size={50}
             />
-            <div>
-              <h2 className="text-white text-sm">{campaign.title}</h2>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-white text-sm truncate">{campaign.title}</h2>
             </div>
             {campaign.is_active && (
               <span className="absolute top-0 right-0 bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white text-xs p-1 px-3 rounded-md rounded-bl-[20px] rounded-l-none rounded-tr-[20px]">
@@ -72,7 +72,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ campaign }) => {
             <div className="border-b pb-2 border-gray-800 pl-9">
               <p className="text-gray-400 text-xs">Campaign Budget</p>
               <p className="text-white font-medium mt-1">
-                {campaign.total_budget / 100000000} MOVE
+                {(campaign.total_budget / 100000000).toFixed(2)} MOVE
               </p>
             </div>
             <div className="border-r border-gray-800">

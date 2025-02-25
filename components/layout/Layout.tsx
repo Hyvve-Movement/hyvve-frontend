@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import dynamic from 'next/dynamic';
+import SubscriptionModal from '../modals/SubscriptionModal';
 
 const WalletSelector = dynamic(() => import('@/helpers/WalletSelector'), {
   ssr: false,
@@ -11,6 +12,8 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+
   return (
     <div>
       <Sidebar />
@@ -23,12 +26,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
           Movement Bardock
         </button>
-        <button className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-lg text-sm p-2 px-4">
+        <button
+          onClick={() => setIsSubscriptionModalOpen(true)}
+          className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-lg text-sm p-2 px-4 hover:opacity-90 transition-opacity"
+        >
           Activate subscription
         </button>
         <WalletSelector />
       </div>
       {children}
+
+      <SubscriptionModal
+        isOpen={isSubscriptionModalOpen}
+        onClose={() => setIsSubscriptionModalOpen(false)}
+      />
     </div>
   );
 };

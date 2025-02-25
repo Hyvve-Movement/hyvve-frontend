@@ -69,7 +69,7 @@ const ContributionsTable: React.FC = () => {
     queryFn: async () => {
       if (!id) return null;
       const response = await fetch(
-        `/api/campaign/getCampaignContributions?campaignId=test_campaign_86`
+        `/api/campaign/getCampaignContributions?campaignId=${id}`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch contributions');

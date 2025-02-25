@@ -17,6 +17,8 @@ interface Campaign {
   unit_price: number;
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
+
 const MyCampaigns = () => {
   const { account } = useWallet();
 
@@ -25,7 +27,7 @@ const MyCampaigns = () => {
     queryFn: async () => {
       if (!account?.address) return [];
       const response = await fetch(
-        `https://hive-backend-production-eb93.up.railway.app/campaigns/${account.address}/campaigns/created`
+        `${baseUrl}/campaigns/${account.address}/campaigns/created`
       );
       const data = await response.json();
       console.log('My campaigns:', data);

@@ -165,7 +165,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
       </div>
 
       <h2 className="text-2xl font-bold text-white">
-        Welcome to Hive Premium!
+        Welcome to Hyvve Premium!
       </h2>
 
       <p className="text-[#f5f5fa7a]">
@@ -232,7 +232,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         onClick={handleClose}
         className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white font-semibold hover:opacity-90 transition-opacity"
       >
-        Continue to Hive
+        Continue to Hyvve
       </button>
     </div>
   );
@@ -279,12 +279,12 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   <Dialog.Title className="text-2xl font-bold text-white mb-2">
                     {isSubscribed
                       ? 'Manage Your Subscription'
-                      : 'Upgrade to Hive Premium'}
+                      : 'Upgrade to Hyvve Premium'}
                   </Dialog.Title>
                   <Dialog.Description className="text-[#f5f5fa7a] text-sm mb-6">
                     {isSubscribed
                       ? 'Your subscription is currently active. You can manage your settings below.'
-                      : 'Unlock premium features and support the Hive ecosystem'}
+                      : 'Unlock premium features and support the Hyvve ecosystem'}
                   </Dialog.Description>
 
                   <div className="bg-[#f5f5fa0a] rounded-xl p-4 mb-6">
@@ -392,7 +392,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   </button>
 
                   <p className="mt-4 text-center text-xs text-[#f5f5fa7a]">
-                    By subscribing, you agree to the terms of Hive Premium
+                    By subscribing, you agree to the terms of Hyvve Premium
                     membership
                   </p>
                 </>

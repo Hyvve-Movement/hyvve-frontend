@@ -23,15 +23,101 @@ interface UserReputation {
 interface OverviewProps {
   campaign: Campaign;
   isOwner: boolean;
+  isLoading?: boolean;
 }
 
-const Overview: React.FC<OverviewProps> = ({ campaign, isOwner }) => {
+// Skeleton loader for the Overview tab
+export const OverviewSkeleton: React.FC = () => {
+  return (
+    <div className="space-y-8">
+      {/* Header Section Skeleton */}
+      <div className="flex items-start justify-between">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-[#f5f5fa14] animate-pulse"></div>
+            <div className="space-y-2">
+              <div className="h-6 w-48 bg-[#f5f5fa14] rounded animate-pulse"></div>
+              <div className="h-4 w-32 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="h-8 w-64 bg-[#f5f5fa14] rounded animate-pulse"></div>
+            <div className="flex items-center gap-4">
+              <div className="h-4 w-24 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+              <div className="h-4 w-24 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Skeleton */}
+      <div className="grid grid-cols-4 gap-6">
+        {/* Campaign Details Skeleton */}
+        <div className="col-span-2 space-y-6">
+          <div className="rounded-xl border border-[#f5f5fa14] p-6 radial-gradient-border">
+            <div className="inner-content">
+              <div className="h-6 w-48 bg-[#f5f5fa14] rounded mb-4 animate-pulse"></div>
+              <div className="space-y-4">
+                <div className="h-4 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                <div className="h-4 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                <div className="h-4 w-3/4 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+
+                <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[#f5f5fa14]">
+                  <div>
+                    <div className="h-4 w-32 bg-[#f5f5fa14] rounded mb-4 animate-pulse"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                      <div className="h-3 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                      <div className="h-3 w-3/4 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="h-4 w-32 bg-[#f5f5fa14] rounded mb-4 animate-pulse"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                      <div className="h-3 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                      <div className="h-3 w-3/4 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Breakdown Skeleton */}
+        <div>
+          <div className="rounded-xl border border-[#f5f5fa14] p-6">
+            <div className="h-6 w-48 bg-[#f5f5fa14] rounded mb-4 animate-pulse"></div>
+            <div className="space-y-4">
+              <div className="h-16 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+              <div className="h-16 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+              <div className="h-16 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Overview: React.FC<OverviewProps> = ({
+  campaign,
+  isOwner,
+  isLoading,
+}) => {
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const { setCampaign } = useCampaignStore();
 
   useEffect(() => {
     setCampaign(campaign);
   }, [campaign, setCampaign]);
+
+  // If loading, show skeleton
+  if (isLoading) {
+    return <OverviewSkeleton />;
+  }
 
   // Format the creation date
   const createdDate = new Date(campaign.created_at).toLocaleDateString(

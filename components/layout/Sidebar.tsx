@@ -21,7 +21,7 @@ const Sidebar = () => {
           <FaDiceD20 className="text-white text-[24px] " />
           &nbsp;&nbsp;
           <h2 className="font-extrabold text-[24px] leading-[30px] text-white">
-            Hive{' '}
+            Hyvve{' '}
           </h2>
         </Link>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tab } from '@headlessui/react';
 import {
   TrophyIcon,
@@ -9,8 +9,25 @@ import {
   ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 import Avvvatars from 'avvvatars-react';
+import axios from 'axios';
+import { truncateAddress } from '@aptos-labs/wallet-adapter-react';
+import { octasToMove } from '@/utils/aptos/octasToMove';
 
-interface LeaderboardUser {
+interface CreatorLeaderboardUser {
+  creator: string;
+  total_campaigns: number;
+  total_amount_spent: number;
+  reputation_score: number | null;
+}
+
+interface ContributorLeaderboardUser {
+  address: string;
+  total_contributions: number;
+  success_rate: number;
+  total_amount_earned: number;
+}
+
+interface DisplayLeaderboardUser {
   rank: number;
   address: string;
   username: string;
@@ -19,7 +36,9 @@ interface LeaderboardUser {
   campaignsCount: number;
 }
 
-const mockCreators: LeaderboardUser[] = [
+const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
+
+const mockCreators: DisplayLeaderboardUser[] = [
   {
     rank: 1,
     address: '0x1234...5678',
@@ -62,7 +81,7 @@ const mockCreators: LeaderboardUser[] = [
   },
 ];
 
-const mockContributors: LeaderboardUser[] = [
+const mockContributors: DisplayLeaderboardUser[] = [
   {
     rank: 1,
     address: '0x8765...4321',
@@ -107,6 +126,96 @@ const mockContributors: LeaderboardUser[] = [
 
 const UserLeaderboard = () => {
   const [selectedTab, setSelectedTab] = useState(0);
+  const [creators, setCreators] = useState<DisplayLeaderboardUser[]>([]);
+  const [contributors, setContributors] = useState<DisplayLeaderboardUser[]>(
+    []
+  );
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeaderboardData = async () => {
+      setLoading(true);
+      try {
+        // Fetch creators data
+        const creatorsResponse = await axios.get(
+          `${baseUrl}/campaigns/analytics/leaderboard/global/creators`
+        );
+        console.log('Creators leaderboard data:', creatorsResponse.data);
+
+        // Transform creators data
+        const formattedCreators = creatorsResponse.data.map(
+          (creator: CreatorLeaderboardUser, index: number) => {
+            // Handle null or empty creator address
+            const address = creator.creator || `Unknown_${index}`;
+            return {
+              rank: index + 1,
+              address: address,
+              username: address
+                ? truncateAddress(address)
+                : `Unknown_${index + 1}`,
+              score: Math.round(creator.reputation_score || 85), // Default if not available
+              totalAmount: creator.total_amount_spent || 0, // Keep as raw value for octasToMove conversion
+              campaignsCount: creator.total_campaigns || 0,
+            };
+          }
+        );
+
+        // Only use real data if we have it
+        if (formattedCreators.length > 0) {
+          setCreators(formattedCreators);
+          console.log('Using real creators data:', formattedCreators);
+        } else {
+          setCreators(mockCreators);
+          console.log('Using mock creators data');
+        }
+
+        // Fetch contributors data
+        const contributorsResponse = await axios.get(
+          `${baseUrl}/campaigns/analytics/leaderboard/global/contributors`
+        );
+        console.log(
+          'Contributors leaderboard data:',
+          contributorsResponse.data
+        );
+
+        // Transform contributors data
+        const formattedContributors = contributorsResponse.data.map(
+          (contributor: ContributorLeaderboardUser, index: number) => {
+            // Handle null or empty contributor address
+            const address = contributor.address || `Unknown_${index}`;
+            return {
+              rank: index + 1,
+              address: address,
+              username: address
+                ? truncateAddress(address)
+                : `Unknown_${index + 1}`,
+              score: Math.round((contributor.success_rate || 0.85) * 100), // Convert to percentage
+              totalAmount: contributor.total_amount_earned || 0, // Keep as raw value for octasToMove conversion
+              campaignsCount: contributor.total_contributions || 0,
+            };
+          }
+        );
+
+        // Only use real data if we have it
+        if (formattedContributors.length > 0) {
+          setContributors(formattedContributors);
+          console.log('Using real contributors data:', formattedContributors);
+        } else {
+          setContributors(mockContributors);
+          console.log('Using mock contributors data');
+        }
+      } catch (error) {
+        console.error('Error fetching leaderboard data:', error);
+        // Use mock data as fallback
+        setCreators(mockCreators);
+        setContributors(mockContributors);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeaderboardData();
+  }, []);
 
   // Trophy colors for top positions
   const getRankStyles = (rank: number) => {
@@ -140,7 +249,10 @@ const UserLeaderboard = () => {
     };
   };
 
-  const renderLeaderboardRow = (user: LeaderboardUser, index: number) => {
+  const renderLeaderboardRow = (
+    user: DisplayLeaderboardUser,
+    index: number
+  ) => {
     const styles = getRankStyles(user.rank);
     const isTopThree = user.rank <= 3;
 
@@ -184,7 +296,6 @@ const UserLeaderboard = () => {
             <h3 className="font-semibold text-[#f5f5faf4] transition-colors group-hover:text-white">
               {user.username}
             </h3>
-            <p className="text-sm text-[#f5f5fa7a]">{user.address}</p>
           </div>
         </div>
 
@@ -205,7 +316,7 @@ const UserLeaderboard = () => {
             </p>
             <div className="flex items-center justify-end gap-1 font-medium">
               <span className="text-[#f5f5faf4]">
-                {user.totalAmount.toLocaleString()}
+                {octasToMove(user.totalAmount)}
               </span>
               <span className="text-[#f5f5fa7a]">MOVE</span>
             </div>
@@ -234,80 +345,75 @@ const UserLeaderboard = () => {
     );
   };
 
+  const SkeletonRow = ({ index }: { index: number }) => {
+    const isTopThree = index < 3;
+    return (
+      <div
+        className={`flex items-center justify-between p-4 ${
+          isTopThree
+            ? `border border-[#f5f5fa14] bg-[#f5f5fa08]`
+            : index % 2 === 0
+            ? 'bg-[#f5f5fa05]'
+            : 'bg-transparent'
+        } rounded-xl animate-pulse`}
+      >
+        {/* Rank and User Info */}
+        <div className="flex items-center gap-4 flex-1">
+          <div className="w-9 h-9 rounded-full bg-[#f5f5fa14]"></div>
+          <div className="relative">
+            <div className="w-12 h-12 rounded-xl bg-[#f5f5fa14]"></div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 w-32 bg-[#f5f5fa14] rounded"></div>
+            <div className="h-3 w-24 bg-[#f5f5fa14] rounded"></div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center gap-6 md:gap-8">
+          <div className="text-right space-y-2">
+            <div className="h-3 w-16 bg-[#f5f5fa14] rounded ml-auto"></div>
+            <div className="h-4 w-8 bg-[#f5f5fa14] rounded ml-auto"></div>
+          </div>
+          <div className="text-right space-y-2">
+            <div className="h-3 w-16 bg-[#f5f5fa14] rounded ml-auto"></div>
+            <div className="h-4 w-20 bg-[#f5f5fa14] rounded ml-auto"></div>
+          </div>
+          <div className="text-right space-y-2">
+            <div className="h-3 w-16 bg-[#f5f5fa14] rounded ml-auto"></div>
+            <div className="h-4 w-8 bg-[#f5f5fa14] rounded ml-auto"></div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Skeleton loader for top champions banner
+  const SkeletonChampionsBanner = () => (
+    <div className="bg-[#f5f5fa0a] rounded-xl p-4 mb-6 border border-[#f5f5fa14]">
+      <div className="flex items-center justify-between">
+        <div className="h-6 w-48 bg-[#f5f5fa14] rounded animate-pulse"></div>
+        <div className="flex -space-x-3">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-9 h-9 rounded-full bg-[#f5f5fa14] animate-pulse"
+            ></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 mt-20">
+    <div className="lg:max-w-[1100px] max-w-[1512px] text-white mt-20">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Leaderboard</h1>
         <p className="text-[#f5f5fa7a] max-w-2xl">
-          Recognizing top performers in the Hive ecosystem. Climb the ranks by
+          Recognizing top performers in the Hyvve ecosystem. Climb the ranks by
           creating valuable campaigns and contributing to projects.
         </p>
-      </div>
-
-      {/* Stats Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-[#f5f5fa0a] rounded-xl p-4 border border-[#f5f5fa14] hover:border-[#f5f5fa29] transition-all group">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[#f5f5fa7a] text-sm mb-1">
-                Total Participants
-              </p>
-              <p className="text-2xl font-bold text-white">2,543</p>
-              <p className="text-xs text-[#f5f5fa7a] mt-1">
-                Active this week: 743
-              </p>
-            </div>
-            <div className="p-3 bg-[#f5f5fa0a] rounded-lg">
-              <UserGroupIcon className="w-6 h-6 text-[#6366f1]" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#f5f5fa0a] rounded-xl p-4 border border-[#f5f5fa14] hover:border-[#f5f5fa29] transition-all group">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[#f5f5fa7a] text-sm mb-1">
-                Earnings Distributed
-              </p>
-              <p className="text-2xl font-bold text-white">456,789</p>
-              <p className="text-xs text-[#f5f5fa7a] mt-1">MOVE tokens</p>
-            </div>
-            <div className="p-3 bg-[#f5f5fa0a] rounded-lg">
-              <CurrencyDollarIcon className="w-6 h-6 text-[#22c55e]" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#f5f5fa0a] rounded-xl p-4 border border-[#f5f5fa14] hover:border-[#f5f5fa29] transition-all group">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[#f5f5fa7a] text-sm mb-1">Active Campaigns</p>
-              <p className="text-2xl font-bold text-white">152</p>
-              <p className="text-xs text-[#f5f5fa7a] mt-1">
-                New this month: 34
-              </p>
-            </div>
-            <div className="p-3 bg-[#f5f5fa0a] rounded-lg">
-              <FireIcon className="w-6 h-6 text-[#a855f7]" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#f5f5fa0a] rounded-xl p-4 border border-[#f5f5fa14] hover:border-[#f5f5fa29] transition-all group">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[#f5f5fa7a] text-sm mb-1">
-                Completed Contributions
-              </p>
-              <p className="text-2xl font-bold text-white">3,298</p>
-              <p className="text-xs text-[#f5f5fa7a] mt-1">This week: 248</p>
-            </div>
-            <div className="p-3 bg-[#f5f5fa0a] rounded-lg">
-              <ArrowTrendingUpIcon className="w-6 h-6 text-[#f97316]" />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Tab Navigation */}
@@ -348,46 +454,68 @@ const UserLeaderboard = () => {
         </Tab.List>
 
         {/* Top 3 Champions Banner */}
-        <div className="bg-[#f5f5fa0a] rounded-xl p-4 mb-6 border border-[#f5f5fa14]">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">
-              {selectedTab === 0 ? 'Top Campaign Creators' : 'Top Contributors'}
-            </h2>
-            <div className="flex -space-x-3">
-              {(selectedTab === 0 ? mockCreators : mockContributors)
-                .slice(0, 3)
-                .map((user) => (
-                  <div
-                    key={user.address}
-                    className={`relative rounded-full border-2 ${
-                      getRankStyles(user.rank).border
-                    }`}
-                  >
-                    <Avvvatars value={user.address} size={36} style="shape" />
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#0f0f17] rounded-full flex items-center justify-center border border-[#f5f5fa14]">
-                      <span
-                        className={`text-xs font-bold ${
-                          getRankStyles(user.rank).icon
-                        }`}
-                      >
-                        {user.rank}
-                      </span>
+        {loading ? (
+          <SkeletonChampionsBanner />
+        ) : (
+          <div className="bg-[#f5f5fa0a] rounded-xl p-4 mb-6 border border-[#f5f5fa14]">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">
+                {selectedTab === 0
+                  ? 'Top Campaign Creators'
+                  : 'Top Contributors'}
+              </h2>
+              <div className="flex -space-x-3">
+                {(selectedTab === 0 ? creators : contributors)
+                  .slice(0, 3)
+                  .map((user) => (
+                    <div
+                      key={user.address}
+                      className={`relative rounded-full border-2 ${
+                        getRankStyles(user.rank).border
+                      }`}
+                    >
+                      <Avvvatars value={user.address} size={36} style="shape" />
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#0f0f17] rounded-full flex items-center justify-center border border-[#f5f5fa14]">
+                        <span
+                          className={`text-xs font-bold ${
+                            getRankStyles(user.rank).icon
+                          }`}
+                        >
+                          {user.rank}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <Tab.Panels>
           <Tab.Panel className="space-y-2">
-            {mockCreators.map((creator, index) =>
-              renderLeaderboardRow(creator, index)
+            {loading ? (
+              <>
+                {[0, 1, 2, 3, 4].map((index) => (
+                  <SkeletonRow key={index} index={index} />
+                ))}
+              </>
+            ) : (
+              creators.map((creator, index) =>
+                renderLeaderboardRow(creator, index)
+              )
             )}
           </Tab.Panel>
           <Tab.Panel className="space-y-2">
-            {mockContributors.map((contributor, index) =>
-              renderLeaderboardRow(contributor, index)
+            {loading ? (
+              <>
+                {[0, 1, 2, 3, 4].map((index) => (
+                  <SkeletonRow key={index} index={index} />
+                ))}
+              </>
+            ) : (
+              contributors.map((contributor, index) =>
+                renderLeaderboardRow(contributor, index)
+              )
             )}
           </Tab.Panel>
         </Tab.Panels>

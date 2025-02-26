@@ -29,11 +29,57 @@ interface Campaign {
 
 interface ContributionsProps {
   campaign: Campaign;
+  isLoading?: boolean;
 }
 
-const Contributions: React.FC<ContributionsProps> = ({ campaign }) => {
+// Skeleton loader for the Contributions tab
+export const ContributionsSkeleton: React.FC = () => {
+  return (
+    <div className="w-[1100px]">
+      <div className="h-7 w-64 bg-[#f5f5fa14] rounded animate-pulse mb-4"></div>
+      <div className="flex gap-2">
+        <div className="relative">
+          <div className="h-10 w-32 bg-[#f5f5fa0a] rounded animate-pulse mt-4"></div>
+        </div>
+      </div>
+
+      {/* Table Skeleton */}
+      <div className="mt-6 border border-[#f5f5fa14] rounded-xl overflow-hidden">
+        {/* Table Header */}
+        <div className="bg-[#f5f5fa0a] p-4 flex">
+          <div className="h-6 w-1/6 bg-[#f5f5fa14] rounded animate-pulse"></div>
+          <div className="h-6 w-1/6 bg-[#f5f5fa14] rounded animate-pulse ml-4"></div>
+          <div className="h-6 w-1/6 bg-[#f5f5fa14] rounded animate-pulse ml-4"></div>
+          <div className="h-6 w-1/6 bg-[#f5f5fa14] rounded animate-pulse ml-4"></div>
+          <div className="h-6 w-1/6 bg-[#f5f5fa14] rounded animate-pulse ml-4"></div>
+        </div>
+
+        {/* Table Rows */}
+        {[...Array(5)].map((_, index) => (
+          <div key={index} className="border-t border-[#f5f5fa14] p-4 flex">
+            <div className="h-6 w-1/6 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+            <div className="h-6 w-1/6 bg-[#f5f5fa0a] rounded animate-pulse ml-4"></div>
+            <div className="h-6 w-1/6 bg-[#f5f5fa0a] rounded animate-pulse ml-4"></div>
+            <div className="h-6 w-1/6 bg-[#f5f5fa0a] rounded animate-pulse ml-4"></div>
+            <div className="h-6 w-1/6 bg-[#f5f5fa0a] rounded animate-pulse ml-4"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Contributions: React.FC<ContributionsProps> = ({
+  campaign,
+  isLoading,
+}) => {
   const [isBulkDecryptOpen, setIsBulkDecryptOpen] = useState(false);
   const [contributions, setContributions] = useState<any[]>([]); // We'll get this from ContributionsTable
+
+  // If loading, show skeleton
+  if (isLoading) {
+    return <ContributionsSkeleton />;
+  }
 
   const handleExportClick = () => {
     if (contributions.length === 0) {

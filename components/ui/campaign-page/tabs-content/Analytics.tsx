@@ -47,6 +47,7 @@ interface Campaign {
 
 interface AnalyticsProps {
   campaign: Campaign;
+  isLoading?: boolean;
 }
 
 interface StatCardProps {
@@ -74,9 +75,61 @@ const qualityData = [
   { name: 'Low Quality', value: 10, color: '#f5f5fa14' },
 ];
 
-const baseUrl = 'https://hive-backend-production-ee4b.up.railway.app';
+const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
 
-const Analytics: React.FC<AnalyticsProps> = ({ campaign }) => {
+// Skeleton loader for the Analytics tab
+export const AnalyticsSkeleton: React.FC = () => {
+  return (
+    <div className="space-y-6 py-6 pr-6">
+      {/* Header Stats Skeleton */}
+      <div className="grid grid-cols-4 gap-4">
+        {[...Array(4)].map((_, index) => (
+          <div
+            key={index}
+            className="rounded-xl p-4 border border-[#f5f5fa14] animate-pulse"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#f5f5fa14]"></div>
+              <div className="space-y-2">
+                <div className="h-4 w-20 bg-[#f5f5fa0a] rounded"></div>
+                <div className="h-6 w-16 bg-[#f5f5fa14] rounded"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Charts Section Skeleton */}
+      <div className="grid grid-cols-3 gap-6">
+        {/* Submission & Reputation Trend Chart Skeleton */}
+        <div className="col-span-2 rounded-xl p-6 border border-[#f5f5fa14]">
+          <div className="h-6 w-48 bg-[#f5f5fa14] rounded mb-6 animate-pulse"></div>
+          <div className="h-64 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+        </div>
+
+        {/* Quality Distribution Chart Skeleton */}
+        <div className="rounded-xl p-6 border border-[#f5f5fa14]">
+          <div className="h-6 w-48 bg-[#f5f5fa14] rounded mb-6 animate-pulse"></div>
+          <div className="h-64 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+        </div>
+      </div>
+
+      {/* Additional Stats Skeleton */}
+      <div className="grid grid-cols-2 gap-6">
+        <div className="rounded-xl p-6 border border-[#f5f5fa14]">
+          <div className="h-6 w-48 bg-[#f5f5fa14] rounded mb-6 animate-pulse"></div>
+          <div className="h-32 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+        </div>
+        <div className="rounded-xl p-6 border border-[#f5f5fa14]">
+          <div className="h-6 w-48 bg-[#f5f5fa14] rounded mb-6 animate-pulse"></div>
+          <div className="h-32 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Analytics: React.FC<AnalyticsProps> = ({ campaign, isLoading }) => {
   useEffect(() => {
     const fetchCampaignAnalytics = async () => {
       try {
@@ -93,8 +146,50 @@ const Analytics: React.FC<AnalyticsProps> = ({ campaign }) => {
       }
     };
 
-    fetchCampaignAnalytics();
-  }, [campaign.onchain_campaign_id]);
+    const fetchCampaignContributions = async () => {
+      try {
+        const onchainCampaignId = campaign.onchain_campaign_id;
+        console.log('Fetching contributions for campaign:', onchainCampaignId);
+
+        const response = await axios.get(
+          `${baseUrl}/campaigns/get-contributions/${onchainCampaignId}`
+        );
+
+        console.log('Campaign contributions data:', response.data);
+      } catch (error) {
+        console.error('Error fetching campaign contributions:', error);
+      }
+    };
+
+    const fetchPeakActivity = async () => {
+      try {
+        const onchainCampaignId = campaign.onchain_campaign_id;
+        console.log(
+          'Calculating peak activity for campaign:',
+          onchainCampaignId
+        );
+
+        const response = await axios.post(
+          `${baseUrl}/campaigns/calculate-peak-activity?onchain_campaign_id=${onchainCampaignId}`
+        );
+
+        console.log('Campaign peak activity data:', response.data);
+      } catch (error) {
+        console.error('Error calculating peak activity:', error);
+      }
+    };
+
+    if (!isLoading) {
+      fetchCampaignAnalytics();
+      fetchCampaignContributions();
+      fetchPeakActivity();
+    }
+  }, [campaign.onchain_campaign_id, isLoading]);
+
+  // If loading, show skeleton
+  if (isLoading) {
+    return <AnalyticsSkeleton />;
+  }
 
   const totalSubmissions = submissionData.reduce(
     (acc, curr) => acc + curr.submissions,

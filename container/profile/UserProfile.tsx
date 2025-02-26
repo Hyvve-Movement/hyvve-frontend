@@ -105,7 +105,7 @@ const getBadgeDescription = (badgeType: number) => {
       return 'Completed first verification on the platform';
 
     default:
-      return 'Achievement unlocked on the Hive platform';
+      return 'Achievement unlocked on the Hyvve platform';
   }
 };
 

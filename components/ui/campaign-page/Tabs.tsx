@@ -73,12 +73,84 @@ const Tabs: React.FC = () => {
     }
   }, [isOwner, activeTab, isSubscribed]);
 
-  // Show loading only on initial load (when no data is available)
-  if (isLoading && !campaignData) {
+  // Show loading skeleton on initial load or when refetching data
+  if (isLoading || (isFetching && !campaignData)) {
     return (
-      <div className="w-full mt-[80px] flex justify-center">
-        <div className="animate-pulse text-[#f5f5fa7a]">
-          Loading campaign...
+      <div className="w-full mt-[80px]">
+        {/* Tab Navigation Skeleton */}
+        <div className="border-b border-gray-800 mb-6">
+          <div className="flex gap-8">
+            <div className="pb-4 w-24 h-8 bg-[#f5f5fa14] rounded-md animate-pulse"></div>
+            <div className="pb-4 w-28 h-8 bg-[#f5f5fa0a] rounded-md animate-pulse"></div>
+            <div className="pb-4 w-32 h-8 bg-[#f5f5fa0a] rounded-md animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Tab Content Skeleton - We show this at the Tabs component level instead of in each tab component */}
+        <div className="mt-6 space-y-6">
+          {/* Header Section Skeleton */}
+          <div className="flex items-start justify-between">
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-[#f5f5fa14] animate-pulse"></div>
+                <div className="space-y-2">
+                  <div className="h-6 w-48 bg-[#f5f5fa14] rounded animate-pulse"></div>
+                  <div className="h-4 w-32 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="h-8 w-64 bg-[#f5f5fa14] rounded animate-pulse"></div>
+                <div className="flex items-center gap-4">
+                  <div className="h-4 w-24 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                  <div className="h-4 w-24 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Skeleton */}
+          <div className="grid grid-cols-4 gap-6">
+            <div className="col-span-2 space-y-6">
+              <div className="rounded-xl border border-[#f5f5fa14] p-6">
+                <div className="h-6 w-48 bg-[#f5f5fa14] rounded mb-4 animate-pulse"></div>
+                <div className="space-y-4">
+                  <div className="h-4 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                  <div className="h-4 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                  <div className="h-4 w-3/4 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+
+                  <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[#f5f5fa14]">
+                    <div>
+                      <div className="h-4 w-32 bg-[#f5f5fa14] rounded mb-4 animate-pulse"></div>
+                      <div className="space-y-2">
+                        <div className="h-3 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                        <div className="h-3 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                        <div className="h-3 w-3/4 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="h-4 w-32 bg-[#f5f5fa14] rounded mb-4 animate-pulse"></div>
+                      <div className="space-y-2">
+                        <div className="h-3 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                        <div className="h-3 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                        <div className="h-3 w-3/4 bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Breakdown Skeleton */}
+            <div className="rounded-xl border border-[#f5f5fa14] p-6">
+              <div className="h-6 w-48 bg-[#f5f5fa14] rounded mb-4 animate-pulse"></div>
+              <div className="space-y-4">
+                <div className="h-16 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                <div className="h-16 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+                <div className="h-16 w-full bg-[#f5f5fa0a] rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -159,17 +231,21 @@ const Tabs: React.FC = () => {
       <div className="mt-6">
         {activeTab === 'overview' && (
           <div>
-            <Overview campaign={campaignData} isOwner={isOwner} />
+            <Overview
+              campaign={campaignData}
+              isOwner={isOwner}
+              isLoading={false}
+            />
           </div>
         )}
         {isOwner && activeTab === 'contributions' && (
           <div>
-            <Contributions campaign={campaignData} />
+            <Contributions campaign={campaignData} isLoading={false} />
           </div>
         )}
         {canAccessAnalytics && activeTab === 'analytics' && (
           <div>
-            <Analytics campaign={campaignData} />
+            <Analytics campaign={campaignData} isLoading={false} />
           </div>
         )}
       </div>

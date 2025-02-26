@@ -76,7 +76,7 @@ const Login = () => {
             <p className="text-gray-400 text-base">
               The decentralized data collection platform
             </p>
-          </div>
+          </div> 
         </div>
 
         {/* Features */}

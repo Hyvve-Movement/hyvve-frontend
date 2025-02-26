@@ -20,7 +20,6 @@ const config = new AptosConfig({
   faucet: 'https://faucet.testnet.bardock.movementnetwork.xyz/',
 });
 
-const MOVEMENT_EXPLORER_URL = 'https://explorer.movementlabs.xyz';
 const pinataEndpoint = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
 const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
 

@@ -5,6 +5,7 @@ import Analytics from './tabs-content/Analytics';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
+import { useSubscription } from '@/context/SubscriptionContext';
 
 interface Campaign {
   campaign_id: string;
@@ -26,6 +27,7 @@ interface Campaign {
   total_budget: number;
   transaction_hash: string;
   unit_price: number;
+  unique_contributions_count: number;
 }
 
 const Tabs: React.FC = () => {
@@ -33,7 +35,7 @@ const Tabs: React.FC = () => {
   const { account } = useWallet();
   const router = useRouter();
   const { id } = router.query;
-
+  const { isSubscribed } = useSubscription();
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
 
   const {
@@ -58,15 +60,18 @@ const Tabs: React.FC = () => {
   });
 
   const isOwner = account?.address === campaignData?.creator_wallet_address;
+  const canAccessAnalytics = isOwner && isSubscribed;
 
   useEffect(() => {
+    // Redirect to overview if user is not the owner or trying to access analytics without subscription
     if (
-      !isOwner &&
-      (activeTab === 'contributions' || activeTab === 'analytics')
+      (!isOwner &&
+        (activeTab === 'contributions' || activeTab === 'analytics')) ||
+      (activeTab === 'analytics' && !isSubscribed)
     ) {
       setActiveTab('overview');
     }
-  }, [isOwner, activeTab]);
+  }, [isOwner, activeTab, isSubscribed]);
 
   // Show loading only on initial load (when no data is available)
   if (isLoading && !campaignData) {
@@ -115,19 +120,36 @@ const Tabs: React.FC = () => {
               >
                 Contributions
               </button>
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`pb-4 text-sm font-medium relative ${
-                  activeTab === 'analytics'
-                    ? 'text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-[#6366f1] after:to-[#a855f7]'
-                    : 'text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                Analytics{' '}
-                <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white p-1 px-2 rounded-md rounded-bl-[20px] rounded-l-none rounded-tr-[20px] py-1 text-xs font-semibold">
-                  (premium only)
-                </span>
-              </button>
+
+              {/* Only show analytics tab if user is subscribed */}
+              {isSubscribed ? (
+                <button
+                  onClick={() => setActiveTab('analytics')}
+                  className={`pb-4 text-sm font-medium relative ${
+                    activeTab === 'analytics'
+                      ? 'text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-[#6366f1] after:to-[#a855f7]'
+                      : 'text-gray-400 hover:text-gray-300'
+                  }`}
+                >
+                  Analytics{' '}
+                  <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white p-1 px-2 rounded-md rounded-bl-[20px] rounded-l-none rounded-tr-[20px] py-1 text-xs font-semibold">
+                    Premium
+                  </span>
+                </button>
+              ) : (
+                <button
+                  className={`pb-4 text-sm font-medium relative text-gray-400  ${
+                    isSubscribed
+                      ? 'cursor-pointer hover:text-gray-300'
+                      : 'cursor-not-allowed'
+                  }`}
+                >
+                  Analytics{' '}
+                  <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white p-1 px-2 rounded-md rounded-bl-[20px] rounded-l-none rounded-tr-[20px] py-1 text-xs font-semibold">
+                    (premium only)
+                  </span>
+                </button>
+              )}
             </>
           )}
         </div>
@@ -137,7 +159,7 @@ const Tabs: React.FC = () => {
       <div className="mt-6">
         {activeTab === 'overview' && (
           <div>
-            <Overview campaign={campaignData} />
+            <Overview campaign={campaignData} isOwner={isOwner} />
           </div>
         )}
         {isOwner && activeTab === 'contributions' && (
@@ -145,7 +167,7 @@ const Tabs: React.FC = () => {
             <Contributions campaign={campaignData} />
           </div>
         )}
-        {isOwner && activeTab === 'analytics' && (
+        {canAccessAnalytics && activeTab === 'analytics' && (
           <div>
             <Analytics campaign={campaignData} />
           </div>

@@ -11,6 +11,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { HexString } from 'aptos';
 import { toast } from 'react-toastify';
+import crypto from 'crypto';
 
 interface EncryptDataProps {
   onNext: () => void;
@@ -35,6 +36,7 @@ const encryptionSteps = [
 ];
 
 const pinataEndpoint = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
 
 const EncryptData: React.FC<EncryptDataProps> = ({
   onNext,
@@ -49,6 +51,12 @@ const EncryptData: React.FC<EncryptDataProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { account, signAndSubmitTransaction } = useWallet();
+
+  const generateContributionId = (): string => {
+    return `contribution_${Date.now()}_${crypto
+      .randomBytes(4)
+      .toString('hex')}`;
+  };
 
   const handleOnChainSubmission = async () => {
     if (
@@ -67,26 +75,70 @@ const EncryptData: React.FC<EncryptDataProps> = ({
         throw new Error('Campaign ID not found');
       }
 
+      let reputationScore = 1;
+      try {
+        const reputationResponse = await axios.get(
+          `/api/campaign/getUserReputation?address=${account.address}`
+        );
+
+        if (reputationResponse.data && reputationResponse.data.reputation) {
+          reputationScore =
+            reputationResponse.data.reputation.reputation_score || 1;
+          console.log('Fetched reputation score:', reputationScore);
+        }
+      } catch (reputationError) {
+        console.warn('Failed to fetch reputation score:', reputationError);
+      }
+
+      const contributionId = generateContributionId();
+
       const payload = await submitContribution({
         campaignId: campaignId as string,
         dataUrl: submissionData.encryptionStatus.ipfsHash,
         score: submissionData.aiVerificationResult.score,
+        contributionId,
       });
 
       const response = await signAndSubmitTransaction(payload);
       console.log('Transaction submitted:', response);
 
-      // Update submission data with transaction hash
       updateSubmissionData({
         encryptionStatus: {
           ...submissionData.encryptionStatus,
           ipfsHash: submissionData.encryptionStatus.ipfsHash,
-          transactionHash: response.hash || response, // handle both response formats
+          transactionHash: response.hash || response,
         },
       });
 
-      // Wait for transaction to be confirmed
       await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      try {
+        const backendPayload = {
+          contribution_id: contributionId,
+          campaign_id: campaignId,
+          contributor: account.address,
+          data_url: submissionData.encryptionStatus.ipfsHash,
+          transaction_hash: response.hash || response,
+          quality_score: submissionData.aiVerificationResult.score,
+          ai_verification_score: submissionData.aiVerificationResult.score,
+          reputation_score: reputationScore,
+        };
+
+        const backendResponse = await axios.post(
+          `${baseUrl}/campaigns/submit-contributions`,
+          backendPayload
+        );
+
+        if (!backendResponse.data) {
+          console.warn('Backend submission completed but no data returned');
+        }
+      } catch (backendError) {
+        console.error('Backend submission error:', backendError);
+
+        toast.warn(
+          'On-chain submission successful, but failed to sync with backend'
+        );
+      }
 
       toast.success('Contribution submitted successfully!');
       onNext();
@@ -121,6 +173,8 @@ const EncryptData: React.FC<EncryptDataProps> = ({
       if (!campaignId) {
         throw new Error('Campaign ID not found');
       }
+
+      console.log('campaignId', campaignId);
 
       const publicKeyResponse = await axios.get(
         '/api/submission/fetch-public-key',

@@ -1,6 +1,10 @@
 import React from 'react'
 import Layout from '@/components/layout/Layout'
-import UserProfile from '../container/profile/UserProfile'
+import dynamic from 'next/dynamic'
+
+const UserProfile = dynamic(() => import('../container/profile/UserProfile'), {
+  ssr: false,
+})
 
 const Profile = () => {
   return (

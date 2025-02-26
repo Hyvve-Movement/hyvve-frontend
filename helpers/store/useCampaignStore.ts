@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 export interface Campaign {
+  unique_contributions_count: number;
   campaign_id: string;
   campaign_type: string;
   created_at: string;

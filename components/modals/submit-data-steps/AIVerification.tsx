@@ -69,37 +69,37 @@ const AIVerification: React.FC<AIVerificationProps> = ({
         verification_score: 90,
       };
 
-      /* Commented out actual verification logic
-      const formData = new FormData();
-      formData.append(
-        'onchain_campaign_id',
-        submissionData.campaignId || 'campaign_1740392301784'
-      );
-      formData.append(
-        'wallet_address',
-        submissionData.walletAddress ||
-          '0x810c0ea5b2de31e9d9d34e3041cefd1f198c68551cabe7a9f601d0a49121f823'
-      );
+      
+      // const formData = new FormData();
+      // formData.append(
+      //   'onchain_campaign_id',
+      //   submissionData.campaignId || 'campaign_1740392301784'
+      // );
+      // formData.append(
+      //   'wallet_address',
+      //   submissionData.walletAddress ||
+      //     '0x810c0ea5b2de31e9d9d34e3041cefd1f198c68551cabe7a9f601d0a49121f823'
+      // );
 
-      formData.append('file', submissionData.file, submissionData.file.name);
+      // formData.append('file', submissionData.file, submissionData.file.name);
 
-      const endpoint =
-        campaign.campaign_type === 'Text'
-          ? `${baseUrl}/ai-verification/contributions/verify-text`
-          : `${baseUrl}/ai-verification/contributions/verify-image`;
+      // const endpoint =
+      //   campaign.campaign_type === 'Text'
+      //     ? `${baseUrl}/ai-verification/contributions/verify-text`
+      //     : `${baseUrl}/ai-verification/contributions/verify-image`;
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
-      });
+      // const response = await fetch(endpoint, {
+      //   method: 'POST',
+      //   body: formData,
+      // });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || 'Verification failed');
-      }
+      // if (!response.ok) {
+      //   const errorData = await response.json().catch(() => null);
+      //   throw new Error(errorData?.message || 'Verification failed');
+      // }
 
-      const result = await response.json();
-      */
+      // const result = await response.json();
+      
       console.log('Dummy verification result:', result);
 
       setIsAnalyzing(false);
@@ -245,7 +245,7 @@ const AIVerification: React.FC<AIVerificationProps> = ({
               <div className="flex items-center justify-between">
                 <span className="text-[#f5f5faf4]">Quality Score</span>
                 <span className="text-lg font-bold text-[#22c55e]">
-                  {submissionData.aiVerificationResult?.score}%
+                  {Math.round(submissionData.aiVerificationResult?.score)}%
                 </span>
               </div>
               <div className="space-y-3">

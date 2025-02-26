@@ -22,9 +22,10 @@ interface UserReputation {
 
 interface OverviewProps {
   campaign: Campaign;
+  isOwner: boolean;
 }
 
-const Overview: React.FC<OverviewProps> = ({ campaign }) => {
+const Overview: React.FC<OverviewProps> = ({ campaign, isOwner }) => {
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const { setCampaign } = useCampaignStore();
 
@@ -203,19 +204,23 @@ const Overview: React.FC<OverviewProps> = ({ campaign }) => {
         <div>
           <PaymentBreakdown
             totalBudget={campaign?.total_budget}
-            contributorsCount={24}
+            contributorsCount={campaign?.unique_contributions_count}
             submissionsCount={campaign?.current_contributions}
             currency="MOVE"
           />
         </div>
       </div>
-      <button
-        onClick={() => setIsSubmitModalOpen(true)}
-        className="flex text-sm items-center gap-2 px-6 py-3 rounded-xl gradient-border text-white font-semibold hover:opacity-90 transition-opacity"
-      >
-        Submit Data
-        <HiArrowRight className="w-5 h-5" />
-      </button>
+
+      {/* Only show Submit Data button if user is not the owner */}
+      {!isOwner && (
+        <button
+          onClick={() => setIsSubmitModalOpen(true)}
+          className="flex text-sm items-center gap-2 px-6 py-3 rounded-xl gradient-border text-white font-semibold hover:opacity-90 transition-opacity"
+        >
+          Submit Data
+          <HiArrowRight className="w-5 h-5" />
+        </button>
+      )}
 
       <SubmitDataModal
         isOpen={isSubmitModalOpen}

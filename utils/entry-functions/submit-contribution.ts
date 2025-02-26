@@ -6,6 +6,7 @@ export interface SubmitContributionArguments {
   campaignId: string;
   dataUrl: string;
   score: number;
+  contributionId?: string; // Optional to maintain backward compatibility
 }
 
 /**
@@ -28,13 +29,16 @@ const calculateDataHash = (dataUrl: string): number[] => {
 export const submitContribution = async (
   args: SubmitContributionArguments
 ): Promise<InputTransactionData> => {
-  const { campaignId, dataUrl, score } = args;
+  const { campaignId, dataUrl, score, contributionId: providedId } = args;
 
-  // Generate a unique contribution ID
-  const contributionId = generateContributionId();
+  // Use provided ID or generate a new one
+  const contributionId = providedId || generateContributionId();
 
   // Calculate data hash
   const dataHash = calculateDataHash(dataUrl);
+
+  // Round the score to the nearest whole number
+  const roundedScore = Math.round(score);
 
   // Get signature from API
   const signatureResponse = await axios.post(
@@ -42,7 +46,7 @@ export const submitContribution = async (
     {
       campaignId,
       dataUrl,
-      score,
+      score: roundedScore,
     }
   );
 

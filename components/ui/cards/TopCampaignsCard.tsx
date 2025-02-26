@@ -1,21 +1,27 @@
 import React from 'react';
 import Avvvatars from 'avvvatars-react';
-import { HiTrendingUp, HiStar, HiShieldCheck } from 'react-icons/hi';
+import {
+  HiTrendingUp,
+  HiStar,
+  HiShieldCheck,
+  HiCurrencyDollar,
+} from 'react-icons/hi';
 
-interface ContributorStats {
-  contributions: number;
-  successRate: number;
-  reputation: number;
+interface TopCampaignsCardProps {
+  creator?: string;
+  totalCampaigns?: number;
+  totalAmountSpent?: number;
+  reputationScore?: number;
+  rank?: number;
 }
 
-const TopContributors = () => {
-  // Dummy data
-  const stats: ContributorStats = {
-    contributions: 45,
-    successRate: 50,
-    reputation: 856,
-  };
-
+const TopCampaignsCard: React.FC<TopCampaignsCardProps> = ({
+  creator = '0x456...858',
+  totalCampaigns = 45,
+  totalAmountSpent = 720000000,
+  reputationScore = 856,
+  rank = 1,
+}) => {
   // Function to determine reputation tier
   const getReputationTier = (
     score: number
@@ -27,7 +33,21 @@ const TopContributors = () => {
     return { label: 'Rising', color: 'text-gray-400' };
   };
 
-  const reputationTier = getReputationTier(stats.reputation);
+  // Format wallet address for display
+  const formatAddress = (address: string) => {
+    if (!address) return '';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  // Format amount to display in MOVE tokens
+  const formatAmount = (amount: number) => {
+    return (amount / 100000000).toFixed(2);
+  };
+
+  // Calculate percentage for progress bar (based on reputation)
+  const progressPercentage = Math.min(100, (reputationScore / 1000) * 100);
+
+  const reputationTier = getReputationTier(reputationScore);
 
   return (
     <div className="radial-gradient-border border border-gray-800 rounded-xl p-6 w-[370px]">
@@ -35,7 +55,7 @@ const TopContributors = () => {
         {/* Rank Badge */}
         <div className="absolute -top-3 -right-3">
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white font-bold text-sm">
-            #1
+            #{rank}
           </div>
         </div>
 
@@ -44,7 +64,7 @@ const TopContributors = () => {
           {/* Avatar and Primary Info */}
           <div className="flex items-center gap-4">
             <div className="relative">
-              <Avvvatars value="ghost" style="character" size={70} />
+              <Avvvatars value={creator} style="character" size={70} />
               <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-6 h-6 rounded-full bg-[#0f0f17] border-2 border-[#6366f1]">
                 <HiShieldCheck
                   className={`w-3.5 h-3.5 ${reputationTier.color}`}
@@ -54,19 +74,19 @@ const TopContributors = () => {
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="text-white text-sm font-medium">
-                  0x456...858
+                  {formatAddress(creator)}
                 </span>
                 <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#f5f5fa14]">
                   <HiStar className="w-3.5 h-3.5 text-yellow-500" />
                   <span className="text-[10px] text-[#f5f5fa7a]">
-                    Top Contributor
+                    Top Creator
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <HiTrendingUp className="w-4 h-4 text-[#a855f7]" />
                 <span className="text-white text-lg font-semibold">
-                  {stats.contributions} Contributions
+                  {totalCampaigns} Campaigns
                 </span>
               </div>
             </div>
@@ -76,21 +96,23 @@ const TopContributors = () => {
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
-                <span className="text-[#f5f5fa7a] text-xs">Success Rate</span>
+                <HiCurrencyDollar className="w-3.5 h-3.5 text-[#a855f7]" />
+                <span className="text-[#f5f5fa7a] text-xs">Total Spent</span>
               </div>
               <span className="text-white text-sm font-medium">
-                {stats.successRate}%
+                {formatAmount(totalAmountSpent)} MOVE
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <HiShieldCheck className="w-3.5 h-3.5 text-[#a855f7]" />
-                <span className="text-[#f5f5fa7a] text-xs">Reputation Score</span>
+                <span className="text-[#f5f5fa7a] text-xs">
+                  Reputation Score
+                </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-white text-sm font-medium">
-                  {stats.reputation}
+                  {reputationScore}
                 </span>
                 <span className={`text-[10px] ${reputationTier.color}`}>
                   {reputationTier.label}
@@ -104,7 +126,7 @@ const TopContributors = () => {
             <div className="h-1.5 w-full bg-[#f5f5fa14] rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full"
-                style={{ width: `${stats.successRate}%` }}
+                style={{ width: `${progressPercentage}%` }}
               />
             </div>
           </div>
@@ -114,4 +136,4 @@ const TopContributors = () => {
   );
 };
 
-export default TopContributors;
+export default TopCampaignsCard;

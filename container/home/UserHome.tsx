@@ -1,5 +1,5 @@
 import React from 'react';
-import TopContributors from '@/components/ui/TopContributors';
+import TopCampaigns from '@/components/ui/TopCampaigns';
 import dynamic from 'next/dynamic';
 
 const MyCampaigns = dynamic(() => import('@/components/ui/MyCampaigns'), {
@@ -15,7 +15,7 @@ const UserHome = () => {
     <div className="">
       <HomeHeader />
       <MyCampaigns />
-      <TopContributors />
+      <TopCampaigns />
     </div>
   );
 };

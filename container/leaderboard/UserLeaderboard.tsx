@@ -5,6 +5,8 @@ import {
   CurrencyDollarIcon,
   UserGroupIcon,
   ChartBarIcon,
+  FireIcon,
+  ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 import Avvvatars from 'avvvatars-react';
 
@@ -106,85 +108,214 @@ const mockContributors: LeaderboardUser[] = [
 const UserLeaderboard = () => {
   const [selectedTab, setSelectedTab] = useState(0);
 
-  const renderLeaderboardRow = (user: LeaderboardUser, index: number) => (
-    <div
-      key={user.address}
-      className={`flex items-center justify-between p-4 ${
-        index % 2 === 0 ? 'bg-[#f5f5fa0a]' : ''
-      } rounded-xl transition-colors hover:bg-[#f5f5fa14]`}
-    >
-      {/* Rank and User Info */}
-      <div className="flex items-center gap-4 flex-1">
-        <div className="w-8 text-center">
-          <span
-            className={`font-bold ${
-              user.rank <= 3 ? 'text-[#a855f7]' : 'text-[#f5f5faf4]'
+  // Trophy colors for top positions
+  const getRankStyles = (rank: number) => {
+    if (rank === 1) {
+      return {
+        color: 'text-yellow-400',
+        bg: 'bg-yellow-400/10',
+        border: 'border-yellow-400/30',
+        icon: 'text-yellow-400',
+      };
+    } else if (rank === 2) {
+      return {
+        color: 'text-gray-300',
+        bg: 'bg-gray-300/10',
+        border: 'border-gray-300/30',
+        icon: 'text-gray-300',
+      };
+    } else if (rank === 3) {
+      return {
+        color: 'text-amber-600',
+        bg: 'bg-amber-600/10',
+        border: 'border-amber-600/30',
+        icon: 'text-amber-600',
+      };
+    }
+    return {
+      color: 'text-white/70',
+      bg: 'bg-transparent',
+      border: 'border-transparent',
+      icon: 'text-white/50',
+    };
+  };
+
+  const renderLeaderboardRow = (user: LeaderboardUser, index: number) => {
+    const styles = getRankStyles(user.rank);
+    const isTopThree = user.rank <= 3;
+
+    return (
+      <div
+        key={user.address}
+        className={`flex items-center justify-between p-4 ${
+          isTopThree
+            ? `border border-[#f5f5fa14] bg-[#f5f5fa08]`
+            : index % 2 === 0
+            ? 'bg-[#f5f5fa05]'
+            : 'bg-transparent'
+        } rounded-xl transition-all hover:bg-[#f5f5fa0a] hover:border-[#f5f5fa29] group`}
+      >
+        {/* Rank and User Info */}
+        <div className="flex items-center gap-4 flex-1">
+          <div
+            className={`w-9 h-9 flex items-center justify-center rounded-full ${
+              isTopThree
+                ? `${styles.bg} border ${styles.border}`
+                : 'bg-[#f5f5fa0a] border-[#f5f5fa14]'
             }`}
           >
-            #{user.rank}
-          </span>
-        </div>
-        <div className="relative">
-          <Avvvatars value={user.address} size={40} style="shape" />
-          {user.rank <= 3 && (
-            <div className="absolute -top-1 -right-1">
-              <TrophyIcon
-                className={`w-4 h-4 ${
-                  user.rank === 1
-                    ? 'text-yellow-500'
-                    : user.rank === 2
-                    ? 'text-gray-400'
-                    : 'text-orange-600'
-                }`}
-              />
-            </div>
-          )}
-        </div>
-        <div>
-          <h3 className="font-medium text-[#f5f5faf4]">{user.username}</h3>
-          <p className="text-sm text-[#f5f5fa7a]">{user.address}</p>
-        </div>
-      </div>
+            <span className={`text-base font-bold ${styles.color}`}>
+              {user.rank}
+            </span>
+          </div>
 
-      {/* Stats */}
-      <div className="flex items-center gap-8">
-        <div className="text-right">
-          <p className="text-sm text-[#f5f5fa7a]">Reputation Score</p>
-          <p className="font-medium text-[#f5f5faf4]">{user.score}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-sm text-[#f5f5fa7a]">Total Amount</p>
-          <div className="flex items-center justify-end gap-1 font-medium text-[#f5f5faf4]">
-            <CurrencyDollarIcon className="w-4 h-4 text-[#a855f7]" />
-            <span>{user.totalAmount}</span>
-            <span className="text-[#f5f5fa7a]">MOVE</span>
+          <div className="relative">
+            <div className="overflow-hidden rounded-xl">
+              <Avvvatars value={user.address} size={48} style="shape" />
+            </div>
+            {isTopThree && (
+              <div className="absolute -top-1 -right-1 p-1 bg-[#0f0f17] rounded-full border border-[#f5f5fa14]">
+                <TrophyIcon className={`w-3.5 h-3.5 ${styles.icon}`} />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-[#f5f5faf4] transition-colors group-hover:text-white">
+              {user.username}
+            </h3>
+            <p className="text-sm text-[#f5f5fa7a]">{user.address}</p>
           </div>
         </div>
-        <div className="text-right w-32">
-          <p className="text-sm text-[#f5f5fa7a]">
-            {selectedTab === 0 ? 'Campaigns' : 'Contributions'}
-          </p>
-          <p className="font-medium text-[#f5f5faf4]">{user.campaignsCount}</p>
+
+        {/* Stats */}
+        <div className="flex items-center gap-6 md:gap-8">
+          <div className="text-right">
+            <p className="text-sm text-[#f5f5fa7a] mb-1 flex items-center justify-end gap-1">
+              <ChartBarIcon className="w-4 h-4 text-[#6366f1]" />
+              <span>Score</span>
+            </p>
+            <p className="font-medium text-[#f5f5faf4]">{user.score}</p>
+          </div>
+
+          <div className="text-right">
+            <p className="text-sm text-[#f5f5fa7a] mb-1 flex items-center justify-end gap-1">
+              <CurrencyDollarIcon className="w-4 h-4 text-[#22c55e]" />
+              <span>Earnings</span>
+            </p>
+            <div className="flex items-center justify-end gap-1 font-medium">
+              <span className="text-[#f5f5faf4]">
+                {user.totalAmount.toLocaleString()}
+              </span>
+              <span className="text-[#f5f5fa7a]">MOVE</span>
+            </div>
+          </div>
+
+          <div className="text-right min-w-[100px]">
+            <p className="text-sm text-[#f5f5fa7a] mb-1 flex items-center justify-end gap-1">
+              {selectedTab === 0 ? (
+                <>
+                  <FireIcon className="w-4 h-4 text-[#a855f7]" />
+                  <span>Campaigns</span>
+                </>
+              ) : (
+                <>
+                  <ArrowTrendingUpIcon className="w-4 h-4 text-[#a855f7]" />
+                  <span>Contributions</span>
+                </>
+              )}
+            </p>
+            <p className="font-medium text-[#f5f5faf4]">
+              {user.campaignsCount}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
-    <div className="lg:max-w-[1100px] max-w-[1512px]  p-6 mt-20">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 mt-20">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Leaderboard</h1>
-        <p className="text-[#f5f5fa7a]">Top performers in the Hive ecosystem</p>
+        <p className="text-[#f5f5fa7a] max-w-2xl">
+          Recognizing top performers in the Hive ecosystem. Climb the ranks by
+          creating valuable campaigns and contributing to projects.
+        </p>
       </div>
 
-      {/* Stats Overview */}
+      {/* Stats Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="bg-[#f5f5fa0a] rounded-xl p-4 border border-[#f5f5fa14] hover:border-[#f5f5fa29] transition-all group">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[#f5f5fa7a] text-sm mb-1">
+                Total Participants
+              </p>
+              <p className="text-2xl font-bold text-white">2,543</p>
+              <p className="text-xs text-[#f5f5fa7a] mt-1">
+                Active this week: 743
+              </p>
+            </div>
+            <div className="p-3 bg-[#f5f5fa0a] rounded-lg">
+              <UserGroupIcon className="w-6 h-6 text-[#6366f1]" />
+            </div>
+          </div>
+        </div>
 
+        <div className="bg-[#f5f5fa0a] rounded-xl p-4 border border-[#f5f5fa14] hover:border-[#f5f5fa29] transition-all group">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[#f5f5fa7a] text-sm mb-1">
+                Earnings Distributed
+              </p>
+              <p className="text-2xl font-bold text-white">456,789</p>
+              <p className="text-xs text-[#f5f5fa7a] mt-1">MOVE tokens</p>
+            </div>
+            <div className="p-3 bg-[#f5f5fa0a] rounded-lg">
+              <CurrencyDollarIcon className="w-6 h-6 text-[#22c55e]" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-[#f5f5fa0a] rounded-xl p-4 border border-[#f5f5fa14] hover:border-[#f5f5fa29] transition-all group">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[#f5f5fa7a] text-sm mb-1">Active Campaigns</p>
+              <p className="text-2xl font-bold text-white">152</p>
+              <p className="text-xs text-[#f5f5fa7a] mt-1">
+                New this month: 34
+              </p>
+            </div>
+            <div className="p-3 bg-[#f5f5fa0a] rounded-lg">
+              <FireIcon className="w-6 h-6 text-[#a855f7]" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-[#f5f5fa0a] rounded-xl p-4 border border-[#f5f5fa14] hover:border-[#f5f5fa29] transition-all group">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[#f5f5fa7a] text-sm mb-1">
+                Completed Contributions
+              </p>
+              <p className="text-2xl font-bold text-white">3,298</p>
+              <p className="text-xs text-[#f5f5fa7a] mt-1">This week: 248</p>
+            </div>
+            <div className="p-3 bg-[#f5f5fa0a] rounded-lg">
+              <ArrowTrendingUpIcon className="w-6 h-6 text-[#f97316]" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tab Navigation */}
       <Tab.Group onChange={setSelectedTab}>
-        <Tab.List className="flex space-x-2 rounded-xl bg-[#0f0f17] p-1 mb-6">
+        <Tab.List className="flex space-x-1 rounded-xl bg-[#0f0f17] p-1 mb-6">
           <Tab
             className={({ selected }) =>
-              `w-full rounded-lg py-4 text-sm font-medium leading-5
+              `w-full rounded-lg py-3 text-sm font-medium leading-5 transition-all
               ${
                 selected
                   ? 'bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white shadow'
@@ -193,11 +324,14 @@ const UserLeaderboard = () => {
               `
             }
           >
-            Campaign Creators
+            <div className="flex items-center justify-center gap-2">
+              <FireIcon className="w-5 h-5" />
+              <span>Campaign Creators</span>
+            </div>
           </Tab>
           <Tab
             className={({ selected }) =>
-              `w-full rounded-lg py-2.5 text-sm font-medium leading-5
+              `w-full rounded-lg py-3 text-sm font-medium leading-5 transition-all
               ${
                 selected
                   ? 'bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white shadow'
@@ -206,9 +340,45 @@ const UserLeaderboard = () => {
               `
             }
           >
-            Contributors
+            <div className="flex items-center justify-center gap-2">
+              <ArrowTrendingUpIcon className="w-5 h-5" />
+              <span>Contributors</span>
+            </div>
           </Tab>
         </Tab.List>
+
+        {/* Top 3 Champions Banner */}
+        <div className="bg-[#f5f5fa0a] rounded-xl p-4 mb-6 border border-[#f5f5fa14]">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">
+              {selectedTab === 0 ? 'Top Campaign Creators' : 'Top Contributors'}
+            </h2>
+            <div className="flex -space-x-3">
+              {(selectedTab === 0 ? mockCreators : mockContributors)
+                .slice(0, 3)
+                .map((user) => (
+                  <div
+                    key={user.address}
+                    className={`relative rounded-full border-2 ${
+                      getRankStyles(user.rank).border
+                    }`}
+                  >
+                    <Avvvatars value={user.address} size={36} style="shape" />
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#0f0f17] rounded-full flex items-center justify-center border border-[#f5f5fa14]">
+                      <span
+                        className={`text-xs font-bold ${
+                          getRankStyles(user.rank).icon
+                        }`}
+                      >
+                        {user.rank}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+
         <Tab.Panels>
           <Tab.Panel className="space-y-2">
             {mockCreators.map((creator, index) =>

@@ -13,7 +13,7 @@ const Sidebar = () => {
   return (
     <>
       <nav
-        className="hidden custom-scrollbar fixed top-0 left-0 bg-n-8 shadow-2xl items-center h-screen w-[230px] right-0 navbar mt-0 md:block border-r-[1px] border-gray-800"
+        className="hidden custom-scrollbar fixed top-0 left-0  shadow-2xl items-center h-screen w-[230px] right-0 navbar mt-0 md:block border-r-[1px] border-gray-800"
         style={{ maxWidth: '100vw', overflowX: 'auto' }}
         aria-label="Sidebar"
       >

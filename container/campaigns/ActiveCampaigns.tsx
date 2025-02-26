@@ -15,9 +15,50 @@ interface Campaign {
   title: string;
   total_budget: number;
   unit_price: number;
+  campaign_type: string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL
+const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
+
+// Skeleton loader for campaign cards
+const CampaignCardSkeleton = () => {
+  return (
+    <div className="border border-gray-800 rounded-xl p-6 h-[260px] animate-pulse">
+      <div className="flex items-center gap-3">
+        <div className="w-[50px] h-[50px] rounded-full bg-[#f5f5fa14]"></div>
+        <div className="flex-1">
+          <div className="h-4 bg-[#f5f5fa14] rounded w-3/4 mb-2"></div>
+          <div className="h-3 bg-[#f5f5fa14] rounded w-1/2"></div>
+        </div>
+      </div>
+      <div className="mt-3">
+        <div className="flex gap-2">
+          <div className="h-6 bg-[#f5f5fa14] rounded w-16"></div>
+          <div className="h-6 bg-[#f5f5fa14] rounded w-24"></div>
+          <div className="h-6 bg-[#f5f5fa14] rounded w-20"></div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4 mt-6 ml-2">
+        <div className="border-r border-b border-gray-800">
+          <div className="h-3 bg-[#f5f5fa14] rounded w-24 mb-2"></div>
+          <div className="h-4 bg-[#f5f5fa14] rounded w-8"></div>
+        </div>
+        <div className="border-b pb-2 border-gray-800 pl-9">
+          <div className="h-3 bg-[#f5f5fa14] rounded w-24 mb-2"></div>
+          <div className="h-4 bg-[#f5f5fa14] rounded w-16"></div>
+        </div>
+        <div className="border-r border-gray-800">
+          <div className="h-3 bg-[#f5f5fa14] rounded w-24 mb-2"></div>
+          <div className="h-4 bg-[#f5f5fa14] rounded w-8"></div>
+        </div>
+        <div className="pl-9">
+          <div className="h-3 bg-[#f5f5fa14] rounded w-24 mb-2"></div>
+          <div className="h-4 bg-[#f5f5fa14] rounded w-20"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ActiveCampaigns = () => {
   const {
@@ -27,23 +68,21 @@ const ActiveCampaigns = () => {
   } = useQuery<Campaign[]>({
     queryKey: ['activeCampaigns'],
     queryFn: async () => {
-      const response = await fetch(
-        `${baseUrl}/campaigns/active`
-      );
+      const response = await fetch(`${baseUrl}/campaigns/active`);
       const data = await response.json();
       return data;
     },
   });
+
+  console.log(campaigns);
 
   return (
     <div className="lg:max-w-[1100px] max-w-[1512px] relative mt-[40px]">
       {/* Header Section */}
       <div className="max-w-[1512px] mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <div className='mt-10'> 
-            <h1 className="text-2xl font-bold">
-              Active Campaigns
-            </h1>
+          <div className="mt-10">
+            <h1 className="text-2xl font-bold">Active Campaigns</h1>
             <p className="text-gray-400 mt-2 text-sm">
               Discover and participate in ongoing data collection campaigns
             </p>
@@ -60,13 +99,12 @@ const ActiveCampaigns = () => {
           </div>
         </div>
 
-        {/* Loading State */}
+        {/* Loading State - Skeleton Loader */}
         {isLoading && (
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-pulse flex flex-col items-center">
-              <div className="w-12 h-12 rounded-full border-4 border-[#6366f1] border-t-transparent animate-spin" />
-              <p className="mt-4 text-gray-400">Loading campaigns...</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, index) => (
+              <CampaignCardSkeleton key={index} />
+            ))}
           </div>
         )}
 

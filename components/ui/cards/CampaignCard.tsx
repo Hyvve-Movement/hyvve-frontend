@@ -1,10 +1,12 @@
 import React from 'react';
 import Avvvatars from 'avvvatars-react';
 import Link from 'next/link';
+import { truncateAddress } from '@aptos-labs/wallet-adapter-react';
 
 interface CampaignCardProps {
   campaign: {
     campaign_id: string;
+    campaign_type: string;
     onchain_campaign_id: string;
     creator_wallet_address: string;
     current_contributions: number;
@@ -42,10 +44,13 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ campaign }) => {
             />
             <div className="flex-1 min-w-0">
               <h2 className="text-white text-sm truncate">{campaign.title}</h2>
+              <p className="text-gray-400 text-xs mt-0.5">
+                Creator: {truncateAddress(campaign.creator_wallet_address)}
+              </p>
             </div>
             {campaign.is_active && (
               <span className="absolute top-0 right-0 bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white text-xs p-1 px-3 rounded-md rounded-bl-[20px] rounded-l-none rounded-tr-[20px]">
-                Active
+                {campaign.campaign_type} Campaign
               </span>
             )}
           </div>

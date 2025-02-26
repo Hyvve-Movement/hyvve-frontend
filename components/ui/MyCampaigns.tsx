@@ -15,6 +15,7 @@ interface Campaign {
   title: string;
   total_budget: number;
   unit_price: number;
+  campaign_type: string;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;

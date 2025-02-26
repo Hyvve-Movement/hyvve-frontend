@@ -12,6 +12,7 @@ import PaymentBreakdown from '../../cards/PaymentBreakdown';
 import { useQuery } from '@tanstack/react-query';
 import SubmitDataModal from '@/components/modals/SubmitDataModal';
 import useCampaignStore, { Campaign } from '@/helpers/store/useCampaignStore';
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
 
 interface UserReputation {
   reputation_score: number;
@@ -86,7 +87,6 @@ export const OverviewSkeleton: React.FC = () => {
           </div>
         </div>
 
-        {/* Payment Breakdown Skeleton */}
         <div>
           <div className="rounded-xl border border-[#f5f5fa14] p-6">
             <div className="h-6 w-48 bg-[#f5f5fa14] rounded mb-4 animate-pulse"></div>
@@ -109,6 +109,7 @@ const Overview: React.FC<OverviewProps> = ({
 }) => {
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const { setCampaign } = useCampaignStore();
+  const { account, connected } = useWallet();
 
   useEffect(() => {
     setCampaign(campaign);
@@ -286,7 +287,6 @@ const Overview: React.FC<OverviewProps> = ({
           </div>
         </div>
 
-        {/* Payment Breakdown */}
         <div>
           <PaymentBreakdown
             totalBudget={campaign?.total_budget}
@@ -299,13 +299,45 @@ const Overview: React.FC<OverviewProps> = ({
 
       {/* Only show Submit Data button if user is not the owner */}
       {!isOwner && (
-        <button
-          onClick={() => setIsSubmitModalOpen(true)}
-          className="flex text-sm items-center gap-2 px-6 py-3 rounded-xl gradient-border text-white font-semibold hover:opacity-90 transition-opacity"
-        >
-          Submit Data
-          <HiArrowRight className="w-5 h-5" />
-        </button>
+        <>
+          {connected ? (
+            <>
+              <button
+                onClick={() => setIsSubmitModalOpen(true)}
+                disabled={
+                  campaign.current_contributions >= campaign.max_data_count
+                }
+                className={`flex text-sm items-center gap-2 px-6 py-3 rounded-xl ${
+                  campaign.current_contributions >= campaign.max_data_count
+                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    : 'gradient-border text-white hover:opacity-90 transition-opacity'
+                }`}
+              >
+                {campaign.current_contributions >= campaign.max_data_count
+                  ? 'Campaign Full'
+                  : 'Submit Data'}
+                {campaign.current_contributions < campaign.max_data_count && (
+                  <HiArrowRight className="w-5 h-5" />
+                )}
+              </button>
+              {campaign.current_contributions >= campaign.max_data_count && (
+                <p className="text-[#f5f5fa7a] text-sm pb-6">
+                  This campaign has reached its maximum submission limit.
+                </p>
+              )}
+            </>
+          ) : (
+            <div className=" border border-[#f5f5fa14] rounded-xl p-4 mb-6 w-[370px]">
+              <p className="text-[#f5f5faf4] text-sm mb-2">
+                Connect your wallet to submit data to this campaign
+              </p>
+              <p className="text-[#f5f5fa7a] text-xs">
+                You need to connect an Aptos wallet to participate in data
+                collection campaigns
+              </p>
+            </div>
+          )}
+        </>
       )}
 
       <SubmitDataModal

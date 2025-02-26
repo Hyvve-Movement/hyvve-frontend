@@ -114,7 +114,7 @@ const EncryptData: React.FC<EncryptDataProps> = ({
 
       try {
         const backendPayload = {
-          contribution_id: contributionId,
+          onchain_contribution_id: contributionId,
           campaign_id: campaignId,
           contributor: account.address,
           data_url: submissionData.encryptionStatus.ipfsHash,

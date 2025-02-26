@@ -73,6 +73,18 @@
   }
 }
 
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
 .highest-z-index {
   z-index: 2147483647;
 }
@@ -91,6 +103,10 @@
 
 .animate-stats-entrance {
   animation: stats-entrance 0.5s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
 .rotate-45 {

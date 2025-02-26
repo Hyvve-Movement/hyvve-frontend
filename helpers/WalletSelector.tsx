@@ -70,7 +70,7 @@ export function WalletSelector() {
                   truncateAddress(account.address) ||
                   'Unknown'}
               </span>
-                  
+
               <span onClick={handleDisconnect}>disconnect</span>
             </div>
             <ChevronDown
@@ -89,7 +89,6 @@ export function WalletSelector() {
         )}
 
         {/* Dropdown Menu */}
-        
       </div>
       {isDialogOpen && (
         <Portal>

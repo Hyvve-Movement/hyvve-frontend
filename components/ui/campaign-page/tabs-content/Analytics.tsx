@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   AreaChart,
   Area,
@@ -21,6 +21,7 @@ import {
   HiCurrencyDollar,
   HiDocumentText,
 } from 'react-icons/hi';
+import axios from 'axios';
 
 interface Campaign {
   campaign_id: string;
@@ -73,7 +74,28 @@ const qualityData = [
   { name: 'Low Quality', value: 10, color: '#f5f5fa14' },
 ];
 
+const baseUrl = 'https://hive-backend-production-ee4b.up.railway.app';
+
 const Analytics: React.FC<AnalyticsProps> = ({ campaign }) => {
+  useEffect(() => {
+    const fetchCampaignAnalytics = async () => {
+      try {
+        const onchainCampaignId = campaign.onchain_campaign_id;
+        console.log('Fetching analytics for campaign:', onchainCampaignId);
+
+        const response = await axios.get(
+          `${baseUrl}/campaigns/analytics/campaign/${onchainCampaignId}`
+        );
+
+        console.log('Campaign analytics data:', response.data);
+      } catch (error) {
+        console.error('Error fetching campaign analytics:', error);
+      }
+    };
+
+    fetchCampaignAnalytics();
+  }, [campaign.onchain_campaign_id]);
+
   const totalSubmissions = submissionData.reduce(
     (acc, curr) => acc + curr.submissions,
     0

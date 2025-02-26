@@ -62,7 +62,7 @@ const CampaignSuccess: React.FC<CampaignSuccessProps> = ({
             Transaction Details
           </h3>
           <a
-            href={`https://explorer.movementlabs.xyz/txn/${txHash}`}
+            href={`https://explorer.movementlabs.xyz/txn/${txHash}?network=bardock+testnet`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-[#a855f7] hover:text-[#9333ea] transition-colors text-sm"

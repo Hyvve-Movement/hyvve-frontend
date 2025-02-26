@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { BsArrowRight } from 'react-icons/bs';
 import { HiShieldCheck, HiClock, HiExclamation } from 'react-icons/hi';
 import Avvvatars from 'avvvatars-react';
 import { octasToMove } from '@/utils/aptos/octasToMove';
+import DecryptSubmissionModal from '@/components/modals/DecryptSubmissionModal';
 
 interface Creator {
   avatar: string;
@@ -29,6 +30,8 @@ interface ContributionsTableRowProps {
 
 const ContributionsTableRow: React.FC<ContributionsTableRowProps> = React.memo(
   ({ contribution }) => {
+    const [isDecryptModalOpen, setIsDecryptModalOpen] = useState(false);
+
     const getStatusIcon = (status: string) => {
       switch (status) {
         case 'Verified':
@@ -60,116 +63,129 @@ const ContributionsTableRow: React.FC<ContributionsTableRowProps> = React.memo(
     };
 
     return (
-      <tr className="hover:bg-[#f5f5fa08] transition-colors">
-        <td className="py-4 px-6">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Avvvatars value={contribution.creator.address} size={40} />
-              <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-[#0f0f17] border-2 border-[#6366f1]">
-                <HiShieldCheck
-                  className={`w-3 h-3 ${getReputationColor(
-                    contribution.creator.reputation
-                  )}`}
-                />
+      <>
+        <tr className="hover:bg-[#f5f5fa08] transition-colors">
+          <td className="py-4 px-6">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Avvvatars value={contribution.creator.address} size={40} />
+                <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-[#0f0f17] border-2 border-[#6366f1]">
+                  <HiShieldCheck
+                    className={`w-3 h-3 ${getReputationColor(
+                      contribution.creator.reputation
+                    )}`}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[#f5f5faf4] text-sm font-medium">
+                    {contribution.creator.name}
+                  </span>
+                  <span className="text-[#f5f5fa7a] text-xs">
+                    {/* {contribution.creator.address} */}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="text-[#f5f5fa4a] text-xs">
+                    Reputation Score
+                  </span>
+                  <span
+                    className={`text-xs ${getReputationColor(
+                      contribution.creator.reputation
+                    )}`}
+                  >
+                    {contribution.creator.reputation}
+                  </span>
+                </div>
               </div>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[#f5f5faf4] text-sm font-medium">
-                  {contribution.creator.name}
-                </span>
-                <span className="text-[#f5f5fa7a] text-xs">
-                  {/* {contribution.creator.address} */}
-                </span>
-              </div>
-              <div className="flex items-center gap-1 mt-0.5">
-                <span className="text-[#f5f5fa4a] text-xs">Reputation Score</span>
-                <span
-                  className={`text-xs ${getReputationColor(
-                    contribution.creator.reputation
-                  )}`}
-                >
-                  {contribution.creator.reputation}
-                </span>
-              </div>
-            </div>
-          </div>
-        </td>
-        <td className="py-4 px-6">
-          <div className="flex items-center gap-2">
-            {getStatusIcon(contribution.verificationStatus)}
-            <span
-              className={`text-sm ${
-                contribution.verificationStatus === 'Verified'
-                  ? 'text-green-400'
-                  : contribution.verificationStatus === 'Pending'
-                  ? 'text-yellow-400'
-                  : 'text-red-400'
-              }`}
-            >
-              {contribution.verificationStatus}
-            </span>
-          </div>
-        </td>
-        <td className="py-4 px-6">
-          <div className="flex items-center gap-2">
-            <div className="h-1.5 w-16 bg-[#f5f5fa14] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full"
-                style={{ width: `${contribution.verifierReputation}%` }}
-              />
-            </div>
-            <span className="text-[#f5f5faf4] text-sm font-medium">
-              {contribution.verifierReputation}%
-            </span>
-          </div>
-        </td>
-        <td className="py-4 px-6">
-          <div className="flex items-center gap-2">
-            <div className="h-1.5 w-16 bg-[#f5f5fa14] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full"
-                style={{ width: `${contribution.qualityScore}%` }}
-              />
-            </div>
-            <span className="text-[#f5f5faf4] text-sm font-medium">
-              {contribution.qualityScore}%
-            </span>
-          </div>
-        </td>
-        <td className="py-4 px-6">
-          <div className="space-y-1">
+          </td>
+          <td className="py-4 px-6">
             <div className="flex items-center gap-2">
+              {getStatusIcon(contribution.verificationStatus)}
               <span
-                className={`text-sm font-medium ${
-                  contribution.rewardStatus === 'Released'
+                className={`text-sm ${
+                  contribution.verificationStatus === 'Verified'
                     ? 'text-green-400'
-                    : contribution.rewardStatus === 'Pending'
+                    : contribution.verificationStatus === 'Pending'
                     ? 'text-yellow-400'
                     : 'text-red-400'
                 }`}
               >
-                {octasToMove(contribution.rewardAmount)}{' '}
-                <span className="text-[10px]">MOVE</span>
+                {contribution.verificationStatus}
               </span>
             </div>
-            <span className="text-gray-400 text-xs">
-              {contribution.rewardStatus}
+          </td>
+          <td className="py-4 px-6">
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-16 bg-[#f5f5fa14] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full"
+                  style={{ width: `${contribution.verifierReputation}%` }}
+                />
+              </div>
+              <span className="text-[#f5f5faf4] text-sm font-medium">
+                {contribution.verifierReputation}%
+              </span>
+            </div>
+          </td>
+          <td className="py-4 px-6">
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-16 bg-[#f5f5fa14] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full"
+                  style={{ width: `${contribution.qualityScore}%` }}
+                />
+              </div>
+              <span className="text-[#f5f5faf4] text-sm font-medium">
+                {contribution.qualityScore}%
+              </span>
+            </div>
+          </td>
+          <td className="py-4 px-6">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-sm font-medium ${
+                    contribution.rewardStatus === 'Released'
+                      ? 'text-green-400'
+                      : contribution.rewardStatus === 'Pending'
+                      ? 'text-yellow-400'
+                      : 'text-red-400'
+                  }`}
+                >
+                  {octasToMove(contribution.rewardAmount)}{' '}
+                  <span className="text-[10px]">MOVE</span>
+                </span>
+              </div>
+              <span className="text-gray-400 text-xs">
+                {contribution.rewardStatus}
+              </span>
+            </div>
+          </td>
+          <td className="py-4 px-6">
+            <span className="text-[#f5f5fa7a] text-sm">
+              {formatDate(contribution.submittedAt)}
             </span>
-          </div>
-        </td>
-        <td className="py-4 px-6">
-          <span className="text-[#f5f5fa7a] text-sm">
-            {formatDate(contribution.submittedAt)}
-          </span>
-        </td>
-        <td className="py-4 px-6">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#f5f5fa14] hover:bg-[#f5f5fa1a] transition-colors text-[#f5f5faf4] text-xs">
-            View
-            <BsArrowRight className="w-4 h-4" />
-          </button>
-        </td>
-      </tr>
+          </td>
+          <td className="py-4 px-6">
+            <button
+              onClick={() => setIsDecryptModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#f5f5fa14] hover:bg-[#f5f5fa1a] transition-colors text-[#f5f5faf4] text-xs"
+            >
+              View
+              <BsArrowRight className="w-4 h-4" />
+            </button>
+          </td>
+        </tr>
+
+        <DecryptSubmissionModal
+          isOpen={isDecryptModalOpen}
+          onClose={() => setIsDecryptModalOpen(false)}
+          ipfsHash={contribution.dataUrl}
+        />
+      </>
     );
   }
 );

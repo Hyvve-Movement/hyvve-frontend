@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TypeSelector } from './step-components/TypeSelector';
 import { useCampaign } from '@/context/CampaignContext';
 import { HiOutlineDocument, HiOutlinePhotograph } from 'react-icons/hi';
+import { useSubscription } from '@/context/SubscriptionContext';
 
 interface PlanType {
   name: string;
@@ -27,8 +28,11 @@ const campaignTypes: PlanType[] = [
 
 const CampaignType = () => {
   const [isDisabled, setIsDisabled] = useState(false);
-  const [isPremiumEnabled, setIsPremiumEnabled] = useState(true);
   const { updateCampaignType, errors, campaignData } = useCampaign();
+  const { isSubscribed } = useSubscription();
+
+  // Set premium enabled based on subscription status
+  const isPremiumEnabled = isSubscribed;
 
   const handleTypeChange = (type: PlanType) => {
     updateCampaignType(type);
@@ -36,7 +40,6 @@ const CampaignType = () => {
 
   // Test controls for debugging
   const toggleDisabled = () => setIsDisabled((prev) => !prev);
-  const togglePremium = () => setIsPremiumEnabled((prev) => !prev);
 
   return (
     <div className="w-[898px] mx-auto">
@@ -60,20 +63,29 @@ const CampaignType = () => {
           >
             {isDisabled ? 'Enable' : 'Disable'} Selection
           </button>
-          <button
-            onClick={togglePremium}
-            className="px-4 py-2 text-sm rounded-md bg-gray-700 text-white"
-          >
-            {isPremiumEnabled ? 'Disable' : 'Enable'} Premium
-          </button>
         </div> */}
+
+        {/* {!isSubscribed && (
+          <div className="mt-4 p-3 bg-amber-900/30 border border-amber-700/50 rounded-md text-amber-200 text-sm">
+            <p>
+              Image campaign types require an active subscription.{' '}
+              <a
+                href="/subscription"
+                className="underline hover:text-amber-100"
+              >
+                Upgrade now
+              </a>{' '}
+              to access all features.
+            </p>
+          </div>
+        )} */}
 
         <div className="flex justify-center gap-16 mt-9 ml-16">
           <TypeSelector
             types={campaignTypes}
             selectedType={campaignData.type}
             disabled={isDisabled}
-            premiumEnabled={isPremiumEnabled}
+            premiumEnabled={isSubscribed}
             onTypeChange={handleTypeChange}
           />
         </div>

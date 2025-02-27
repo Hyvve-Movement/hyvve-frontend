@@ -1,4 +1,7 @@
 import { Inter, Roboto_Mono } from 'next/font/google';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { GetServerSideProps } from 'next';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -10,16 +13,16 @@ const robotoMono = Roboto_Mono({
   subsets: ['latin'],
 });
 
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    redirect: {
+      destination: '/login',
+      permanent: false,
+    },
+  };
+};
+
 export default function Home() {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="bg-red-500 p-4 rounded-lg">
-        <h1 className="text-4xl font-bold text-white">Hello World</h1>
-        <p className="text-white mt-2">
-          If you see this in white text on a red background, Tailwind is
-          working!
-        </p>
-      </div>
-    </div>
-  );
+  // This component will never be rendered
+  return null;
 }

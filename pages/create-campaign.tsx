@@ -29,7 +29,7 @@ const CreateCampaign = () => {
         />
       </Head>
       <Layout>
-        <div className="ml-[250px]">
+        <div className="">
           <CampaignMultiStep />
         </div>
       </Layout>

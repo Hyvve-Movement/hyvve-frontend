@@ -64,19 +64,15 @@ const Login = () => {
       >
         {/* Logo and title */}
         <div className="space-y-4 mb-2">
-          <div className="inline-block mb-2">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#6366f1] to-[#a855f7] rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-purple-500/20">
-              <span className="text-white text-2xl font-bold">H</span>
-            </div>
-          </div>
+          <div className="inline-block mb-2"></div>
           <div>
             <h1 className="text-3xl font-bold text-white mb-2 bg-clip-text text-transparent ">
               Welcome to Hyvve
             </h1>
-            <p className="text-gray-400 text-base">
+            {/* <p className="text-gray-400 text-base">
               The decentralized data collection platform
-            </p>
-          </div> 
+            </p> */}
+          </div>
         </div>
 
         {/* Features */}
@@ -127,12 +123,12 @@ const Login = () => {
                 Connect Your Wallet
               </h2>
               <p className="text-gray-400 text-xs">
-                You need to connect an Aptos wallet to access the platform and
-                start contributing
+                You need to connect a Movement compatible wallet to access the
+                platform
               </p>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center gradient-border mt-4">
               <WalletSelector />
             </div>
           </div>

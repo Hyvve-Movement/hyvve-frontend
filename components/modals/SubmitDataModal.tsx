@@ -205,7 +205,7 @@ const SubmitDataModal: React.FC<SubmitDataModalProps> = ({
               </div>
 
               {/* Step Content */}
-              <div className="h-[300px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]">
+              <div className="h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]">
                 <div className="pb-4">{renderStep()}</div>
               </div>
             </Dialog.Panel>

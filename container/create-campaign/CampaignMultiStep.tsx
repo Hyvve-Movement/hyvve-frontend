@@ -215,7 +215,7 @@ const CampaignStepContent = () => {
   };
 
   return (
-    <div className="max-w-[898px] 2xl:max-w-[1100px] mx-auto p-6">
+    <div className="max-w-[898px] 2xl:max-w-[1100px] p-6">
       {/* Progress Bar Container */}
       <div className="flex justify-center">
         <ProgressBar

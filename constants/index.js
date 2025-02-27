@@ -1,6 +1,7 @@
 import { AiOutlineHome } from 'react-icons/ai';
-import { FaUsers } from 'react-icons/fa';
-import { FaUserCircle } from 'react-icons/fa';
+import { FaUsers, FaUserCircle, FaTrophy, FaPlusCircle } from 'react-icons/fa';
+import { MdCampaign } from 'react-icons/md';
+
 export const navigation = [
   {
     name: 'Home',
@@ -10,7 +11,7 @@ export const navigation = [
   {
     name: 'Campaigns',
     href: '/campaigns',
-    icon: <AiOutlineHome className="bg-transparent" />,
+    icon: <MdCampaign className="bg-transparent" />,
   },
   // {
   //   name: 'Marketplace',
@@ -30,12 +31,12 @@ export const navigation = [
   {
     name: 'Leaderboard',
     href: '/leaderboard',
-    icon: <FaUsers className="bg-transparent" />,
+    icon: <FaTrophy className="bg-transparent" />,
   },
   {
     name: 'Create Campaign',
     href: '/create-campaign',
-    icon: <FaUsers className="bg-transparent" />,
+    icon: <FaPlusCircle className="bg-transparent" />,
     isPrimary: true,
   },
 ];

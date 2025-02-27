@@ -42,6 +42,7 @@ const AIVerification: React.FC<AIVerificationProps> = ({
   const [checks, setChecks] = useState<VerificationCheck[]>([
     { name: 'Quality Check', status: 'pending' },
   ]);
+  const [useSimulation, setUseSimulation] = useState(false);
 
   const { campaign } = useCampaignStore();
 
@@ -56,51 +57,17 @@ const AIVerification: React.FC<AIVerificationProps> = ({
     return () => clearInterval(progressInterval);
   }, [isAnalyzing]);
 
-  const verifyData = useCallback(async () => {
-    if (!submissionData.file || verificationStarted || !campaign) return;
-
-    setVerificationStarted(true);
+  const simulateVerification = useCallback(async () => {
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 6000));
 
-      // Dummy result with 90% score
+      const randomScore = Math.floor(Math.random() * 21) + 80;
+
       const result = {
-        verification_score: 90,
+        verification_score: randomScore,
       };
 
-      
-      // const formData = new FormData();
-      // formData.append(
-      //   'onchain_campaign_id',
-      //   submissionData.campaignId || 'campaign_1740392301784'
-      // );
-      // formData.append(
-      //   'wallet_address',
-      //   submissionData.walletAddress ||
-      //     '0x810c0ea5b2de31e9d9d34e3041cefd1f198c68551cabe7a9f601d0a49121f823'
-      // );
-
-      // formData.append('file', submissionData.file, submissionData.file.name);
-
-      // const endpoint =
-      //   campaign.campaign_type === 'Text'
-      //     ? `${baseUrl}/ai-verification/contributions/verify-text`
-      //     : `${baseUrl}/ai-verification/contributions/verify-image`;
-
-      // const response = await fetch(endpoint, {
-      //   method: 'POST',
-      //   body: formData,
-      // });
-
-      // if (!response.ok) {
-      //   const errorData = await response.json().catch(() => null);
-      //   throw new Error(errorData?.message || 'Verification failed');
-      // }
-
-      // const result = await response.json();
-      
-      console.log('Dummy verification result:', result);
+      console.log('Simulated verification result:', result);
 
       setIsAnalyzing(false);
       setProgress(100);
@@ -126,7 +93,87 @@ const AIVerification: React.FC<AIVerificationProps> = ({
 
       if (!passed) {
         setError(
-          `Quality score (${score}%) is below the required threshold of ${PASS_MARK}%`
+          `Quality score (${Math.round(
+            score
+          )}%) is below the required threshold of ${PASS_MARK}%`
+        );
+      }
+    } catch (err) {
+      console.error('Simulation error:', err);
+      setError(err instanceof Error ? err.message : 'Verification failed');
+      setIsAnalyzing(false);
+      setProgress(0);
+      updateSubmissionData({
+        aiVerificationResult: {
+          status: 'failed',
+          error: err instanceof Error ? err.message : 'Verification failed',
+        },
+      });
+    }
+  }, [updateSubmissionData]);
+
+  const performRealVerification = useCallback(async () => {
+    if (!submissionData.file || !campaign) return;
+
+    try {
+      const formData = new FormData();
+      formData.append(
+        'onchain_campaign_id',
+        submissionData.campaignId || 'campaign_1740392301784'
+      );
+      formData.append(
+        'wallet_address',
+        submissionData.walletAddress ||
+          '0x810c0ea5b2de31e9d9d34e3041cefd1f198c68551cabe7a9f601d0a49121f823'
+      );
+
+      formData.append('file', submissionData.file, submissionData.file.name);
+
+      const endpoint =
+        campaign.campaign_type === 'Text'
+          ? `${baseUrl}/ai-verification/contributions/verify-text`
+          : `${baseUrl}/ai-verification/contributions/verify-image`;
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || 'Verification failed');
+      }
+
+      const result = await response.json();
+      console.log('Real verification result:', result);
+
+      setIsAnalyzing(false);
+      setProgress(100);
+
+      const score = result.verification_score || 0;
+      const passed = score >= PASS_MARK;
+
+      updateSubmissionData({
+        aiVerificationResult: {
+          status: passed ? 'success' : 'failed',
+          score: score,
+          checks: [
+            {
+              name: 'Quality Check',
+              status: passed ? 'passed' : 'failed',
+              message: passed
+                ? 'Data meets quality requirements'
+                : 'Data quality score is below required threshold',
+            },
+          ],
+        },
+      });
+
+      if (!passed) {
+        setError(
+          `Quality score (${Math.round(
+            score
+          )}%) is below the required threshold of ${PASS_MARK}%`
         );
       }
     } catch (err) {
@@ -146,11 +193,28 @@ const AIVerification: React.FC<AIVerificationProps> = ({
     submissionData.campaignId,
     submissionData.walletAddress,
     updateSubmissionData,
-    verificationStarted,
     campaign,
   ]);
 
-  // Start verification when component mounts or when file changes
+  const verifyData = useCallback(async () => {
+    if (!submissionData.file || verificationStarted || !campaign) return;
+
+    setVerificationStarted(true);
+
+    if (useSimulation) {
+      await simulateVerification();
+    } else {
+      await performRealVerification();
+    }
+  }, [
+    submissionData.file,
+    verificationStarted,
+    campaign,
+    useSimulation,
+    simulateVerification,
+    performRealVerification,
+  ]);
+
   useEffect(() => {
     if (submissionData.file && !verificationStarted) {
       verifyData();
@@ -192,7 +256,7 @@ const AIVerification: React.FC<AIVerificationProps> = ({
             onClick={handleRetry}
             className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white font-semibold hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#a855f7] focus:ring-offset-2 focus:ring-offset-[#0f0f17]"
           >
-            Upload Different File
+            Retry Verification
           </button>
         </div>
       </div>

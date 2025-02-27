@@ -42,7 +42,7 @@ const AIVerification: React.FC<AIVerificationProps> = ({
   const [checks, setChecks] = useState<VerificationCheck[]>([
     { name: 'Quality Check', status: 'pending' },
   ]);
-  const [useSimulation, setUseSimulation] = useState(false);
+  const [useSimulation, setUseSimulation] = useState(true);
 
   const { campaign } = useCampaignStore();
 

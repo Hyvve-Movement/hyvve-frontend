@@ -62,7 +62,7 @@ const TopContributors = () => {
 
             return {
               ...creator,
-              actualReputationScore: data.reputation?.reputation_score || 750,
+              actualReputationScore: data.reputation?.reputation_score || 1,
             };
           } catch (error) {
             console.error(
@@ -71,7 +71,7 @@ const TopContributors = () => {
             );
             return {
               ...creator,
-              actualReputationScore: 750, // Default value if fetch fails
+              actualReputationScore: 0, // Default value if fetch fails
             };
           }
         });

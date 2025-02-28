@@ -18,12 +18,12 @@ export default async function handler(
   try {
     console.log('Environment check:', {
       hasNodeUrl: !!process.env.NEXT_PUBLIC_NODE_URL,
-      hasModuleAddress: !!process.env.NEXT_PUBLIC_MODULE_ADDRESS,
+      hasModuleAddress: !!process.env.NEXT_PUBLIC_CAMPAIGN_MANAGER_ADDRESS,
       nodeUrl: process.env.NEXT_PUBLIC_NODE_URL,
     });
 
     const client = new AptosClient(process.env.NEXT_PUBLIC_NODE_URL || '');
-    const moduleAddress = process.env.NEXT_PUBLIC_MODULE_ADDRESS;
+    const moduleAddress = process.env.NEXT_PUBLIC_CAMPAIGN_MANAGER_ADDRESS;
 
     if (!moduleAddress) {
       throw new Error('Module address not found in environment variables');

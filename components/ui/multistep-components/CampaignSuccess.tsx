@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   CheckCircle,
   ExternalLink,
@@ -9,6 +10,7 @@ import {
   EyeOff,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useCampaign } from '@/context/CampaignContext';
 
 interface CampaignSuccessProps {
   txHash: string;
@@ -20,7 +22,7 @@ const CampaignSuccess: React.FC<CampaignSuccessProps> = ({
   campaignPrivateKey,
 }) => {
   const [showFullKey, setShowFullKey] = useState(false);
-
+  const { campaignData } = useCampaign();
   const copyToClipboard = async (text: string, message: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -137,6 +139,15 @@ const CampaignSuccess: React.FC<CampaignSuccessProps> = ({
             <Share2 className="w-4 h-4" />
             Share Campaign
           </button>
+          <Link href="/home">
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-[#f5f5fa14] hover:bg-[#f5f5fa1a] 
+              rounded-lg transition-colors text-sm text-[#f5f5faf4]"
+            >
+              <ExternalLink className="w-4 h-4" />
+              View Campaign
+            </button>
+          </Link>
         </div>
       </div>
 

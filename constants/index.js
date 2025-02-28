@@ -48,6 +48,6 @@ export const startingFeatures = [
 ];
 
 export const NETWORK = process.env.NEXT_PUBLIC_APP_NETWORK ?? 'testnet';
-export const MODULE_ADDRESS = process.env.NEXT_PUBLIC_MODULE_ADDRESS;
+export const MODULE_ADDRESS = process.env.NEXT_PUBLIC_CAMPAIGN_MANAGER_ADDRESS;
 export const CREATOR_ADDRESS = process.env.NEXT_PUBLIC_CREATOR_ADDRESS;
 export const IS_DEV = Boolean(process.env.DEV);

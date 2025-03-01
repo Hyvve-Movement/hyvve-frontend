@@ -5,20 +5,17 @@
 
 Hyvve is a token-incentivized data marketplace that connects AI researchers, companies, and everyday data contributors. On Hyvve, you can buy AI-ready data or sell your own for token rewards, all on a secure, decentralized platform.
 
-## Features
+## Project Snapshots
 
-- **Campaign Management**: Create, browse, and manage data collection campaigns
-- **Data Submission**: Submit data contributions to active campaigns
-- **Verification System**: Quality control mechanism for submitted data
-- **Reputation System**: Track contributor and verifier reputation
-- **Subscription Management**: Handle user subscriptions for platform services
-- **Blockchain Integration**: Seamless interaction with Aptos blockchain
+### Create Campaign
+<img width="1440" alt="Screenshot 2025-03-01 at 2 51 56 PM" src="https://github.com/user-attachments/assets/2d34ee2b-b5a3-44ce-b601-5453e6fb4c5b" />
+
 
 ## Technology Stack
 
 - **Framework**: Next.js 14.2.1
 - **UI**: React 18, Tailwind CSS
-- **Blockchain**: Aptos (via @aptos-labs/ts-sdk and @aptos-labs/wallet-adapter-react)
+- **Blockchain Interaction**: Aptos (via @aptos-labs/ts-sdk and @aptos-labs/wallet-adapter-react)
 - **State Management**: Zustand
 - **Data Fetching**: TanStack Query
 - **File Storage**: Pinata IPFS (for metadata and contribution data)
@@ -29,7 +26,7 @@ Hyvve is a token-incentivized data marketplace that connects AI researchers, com
 
 - Node.js (v18 or higher)
 - npm or yarn
-- An Aptos-compatible wallet browser extension (e.g., Petra, Martian)
+- An Movement-compatible wallet browser extension (e.g., Razor, Nightly)
 
 ### Installation
 

@@ -28,6 +28,7 @@ interface VerificationCheck {
 
 const PASS_MARK = 80;
 const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
+const useSimulation = process.env.NEXT_PUBLIC_IS_TESTNET === 'true';
 
 const AIVerification: React.FC<AIVerificationProps> = ({
   onNext,
@@ -42,7 +43,6 @@ const AIVerification: React.FC<AIVerificationProps> = ({
   const [checks, setChecks] = useState<VerificationCheck[]>([
     { name: 'Quality Check', status: 'pending' },
   ]);
-  const [useSimulation, setUseSimulation] = useState(true);
 
   const { campaign } = useCampaignStore();
 

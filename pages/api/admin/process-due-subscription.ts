@@ -70,7 +70,7 @@ export default async function handler(
       message: `Successfully processed ${dueRenewalsCount} subscription renewals`,
       transactionHash: txnResult.hash,
       renewalsProcessed: dueRenewalsCount,
-      explorerUrl: `https://explorer.aptoslabs.com/txn/${txnResult.hash}`,
+      explorerUrl: `https://explorer.movementlabs.xyz/txn/${txnResult.hash}`,
     });
   } catch (error) {
     console.error('Error in process:', error);

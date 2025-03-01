@@ -137,7 +137,7 @@ const fetchUserStats = async (address: string) => {
 const UserProfile = () => {
   const { account } = useWallet();
   const walletAddress = account?.address;
-  const username = 'Ghost';
+  const username = 'Anon';
   const { isSubscribed, subscriptionStatus } = useSubscription();
   const [showSubscriptionDetails, setShowSubscriptionDetails] = useState(false);
 

@@ -10,6 +10,31 @@ Hyvve is a token-incentivized data marketplace that connects AI researchers, com
 ### Create Campaign
 <img width="1440" alt="Screenshot 2025-03-01 at 2 51 56 PM" src="https://github.com/user-attachments/assets/2d34ee2b-b5a3-44ce-b601-5453e6fb4c5b" />
 
+### Home
+![Screenshot 2025-03-01 at 3 04 57 PM](https://github.com/user-attachments/assets/fa4745b6-e002-48a4-80a8-ea6eb7876dd0)
+
+### Active Campaigns
+![Screenshot 2025-03-01 at 3 06 38 PM](https://github.com/user-attachments/assets/2ee139f4-044e-4503-bfea-f59460327943)
+
+### Campaign Page (viewing as owner)
+![Screenshot 2025-03-01 at 3 08 49 PM](https://github.com/user-attachments/assets/f6c26302-d478-4f80-8142-76a95964d4fe)
+
+### Campaign Page (viewing as contributor)
+![Screenshot 2025-03-01 at 3 07 37 PM](https://github.com/user-attachments/assets/61dff99d-5850-4b82-a489-06b488f45a5d)
+
+### Campaign Contributions
+![Screenshot 2025-03-01 at 3 09 58 PM](https://github.com/user-attachments/assets/f22bc7e5-5d68-4cac-976c-d5450b3b690e)
+
+### Hyvve Premium Subscription
+![Screenshot 2025-03-01 at 3 13 52 PM](https://github.com/user-attachments/assets/4fe6b642-9031-42ed-8ef8-897ca47830a9)
+
+### Premium Campaign Analytics page
+![Screenshot 2025-03-01 at 3 11 27 PM](https://github.com/user-attachments/assets/a371a5b9-10b5-4896-92e2-925ddd3eac34)
+
+### Real time Profile Page
+![Screenshot 2025-03-01 at 3 12 35 PM](https://github.com/user-attachments/assets/b814aff3-e532-45c5-8979-9ea55dd10b6f)
+
+
 
 ## Technology Stack
 

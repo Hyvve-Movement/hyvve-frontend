@@ -1,8 +1,9 @@
 # Hyvve Frontend
 
+
 ## Overview
 
-Hyvve is a decentralized data collection and curation platform built on the Aptos blockchain. This frontend application provides a user interface for creating campaigns, submitting data contributions, verifying submissions, and managing reputation within the Hyvve ecosystem.
+Hyvve is a token-incentivized data marketplace that connects AI researchers, companies, and everyday data contributors. On Hyvve, you can buy AI-ready data or sell your own for token rewards, all on a secure, decentralized platform.
 
 ## Features
 
@@ -35,8 +36,8 @@ Hyvve is a decentralized data collection and curation platform built on the Apto
 1. Clone the repository:
 
    ```bash
-   git clone <repository-url>
-   cd Hyvve-frontend
+   git clone https://github.com/Hyvve-Movement/hyvve-frontend.git
+   cd hyvve-frontend
    ```
 
 2. Install dependencies:
@@ -52,7 +53,7 @@ Hyvve is a decentralized data collection and curation platform built on the Apto
 
    ```
    NEXT_PUBLIC_CAMPAIGN_MANAGER_ADDRESS=<campaign-manager-module-address>
-   NEXT_PUBLIC_NODE_URL=<aptos-network-url>
+   NEXT_PUBLIC_NODE_URL=<movement-rpc>
    NEXT_PUBLIC_PINATA_API_KEY=<your-pinata-api-key>
    NEXT_PUBLIC_PINATA_SECRET_API_KEY=<your-pinata-secret-key>
    NEXT_PUBLIC_BACKEND_BASE_URL=<backend-url>
@@ -67,99 +68,35 @@ Hyvve is a decentralized data collection and curation platform built on the Apto
    yarn dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+## Next.js API Routes
+We built some API routes, some of which use the aptos sdk for easy querying data on the Movement Bardock testnet:
 
-## API Routes
-
-The application provides the following API routes:
+### Activity APIs
+- **GET /api/campaign/getUserActivity**
 
 ### Campaign APIs
 
-- **GET /api/campaign/getCampaignContributions**: Fetches contributions for a specific campaign
-- **GET /api/campaign/getUserReputation**: Retrieves a user's reputation score
-- **GET /api/campaign/getRemainingBudget**: Gets the remaining budget for a campaign
+- **GET /api/campaign/getCampaignContributions**
+- **GET /api/campaign/getUserReputation**
+- **GET /api/campaign/getRemainingBudget**
 
 ### Submission APIs
 
-- **POST /api/submission/uploadToIpfs**: Uploads submission data to IPFS
-- **POST /api/submission/encryptSubmission**: Encrypts submission data for privacy
+- **POST /api/submission/uploadToIpfs**
+- **POST /api/submission/encryptSubmission**
 
 ### Reputation APIs
-
-- **GET /api/reputation/getUserReputation**: Gets a user's reputation score
-- **GET /api/reputation/getTopContributors**: Retrieves top contributors by reputation
+- **GET /api/reputation/getReputationInfo**: 
+- **GET /api/reputation/getUserActivity**:
+- **GET /api/reputation/getUserBadges**:
+- **GET /api/reputation/getUserStats**: 
 
 ### Subscription APIs
-
-- **POST /api/subscription/create**: Creates a new subscription
-- **GET /api/subscription/status**: Checks subscription status
-- **POST /api/subscription/verify**: Verifies subscription validity
+- **GET /api/subscription/getSubscriptionStatus**
 
 ### Admin APIs
 
-- **POST /api/admin/verifySubmission**: Admin-only endpoint to verify submissions
-- **GET /api/admin/dashboardStats**: Gets dashboard statistics
-
-## Blockchain Integration
-
-### Aptos SDK Usage
-
-The application uses the Aptos TypeScript SDK (`@aptos-labs/ts-sdk`) and wallet adapter (`@aptos-labs/wallet-adapter-react`) for blockchain interactions. Key utilities include:
-
-#### Wallet Connection
-
-The application uses the Aptos Wallet Adapter for connection to Aptos-compatible wallets.
-
-#### Entry Functions
-
-Transaction entry functions are defined in the `utils/entry-functions` directory:
-
-- `create-campaign.ts`: For creating new data collection campaigns
-- `submit-contribution.ts`: For submitting data contributions to campaigns
-- `subscription.ts`: For managing user subscriptions
-
-#### Helper Functions
-
-Utility functions in `utils/aptos` directory:
-
-- `octasToMove.ts`: Handles conversion between OCTA and MOVE units
-- `helpers.ts`: Contains general Aptos-related helper functions
-- `getterFunctions.ts`: Functions for reading data from the blockchain
-
-### Smart Contract Interaction
-
-The frontend interacts with Aptos Move modules deployed at the addresses specified in the environment variables. The main module used is the Campaign Manager module which handles:
-
-- Campaign creation and management
-- Contribution submissions
-- Reputation tracking
-- Reward distribution
-
-## Deployment
-
-### Build for Production
-
-```bash
-npm run build
-# or
-yarn build
-```
-
-### Start Production Server
-
-```bash
-npm run start
-# or
-yarn start
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- **POST /api/admin/process-due-subscription**: Admin-only endpoint called by our automation service to process subscriptions
 
 ## License
 

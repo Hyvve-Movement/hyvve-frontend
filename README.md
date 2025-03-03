@@ -31,6 +31,10 @@ Hyvve is a token-incentivized data marketplace that connects AI researchers, com
 ### Premium Campaign Analytics page
 ![Screenshot 2025-03-01 at 3 11 27 PM](https://github.com/user-attachments/assets/a371a5b9-10b5-4896-92e2-925ddd3eac34)
 
+### Bulk Export Contributed Data
+<img width="1432" alt="Screenshot 2025-03-03 at 1 26 00 PM" src="https://github.com/user-attachments/assets/aa797cdd-80bb-403d-91f4-80746917dd8d" />
+
+
 ### Real time Profile Page
 ![Screenshot 2025-03-01 at 3 12 35 PM](https://github.com/user-attachments/assets/b814aff3-e532-45c5-8979-9ea55dd10b6f)
 
